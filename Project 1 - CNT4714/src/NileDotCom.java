@@ -56,13 +56,19 @@ public class NileDotCom
 
     public void setUpUserTextFields()
     {
-        
+        setUpNumItemsTextField();
+        setUpItemIDTextField();
+        setUpItemQuantityTextField();
+        setUpItemInfoTextField();
+        setUpOrderSubtotalTextField();
     }
 
     public void setUpButtons()
     {
 
     }
+
+    //******************** Setup for labels ********************
 
     public void setUpNumItemsLabel()
     {
@@ -99,9 +105,45 @@ public class NileDotCom
         websitePanel.add(orderSubtotalLabel);
     }
 
+    //******************** Setup for Text Fields ********************
 
+    public void setUpNumItemsTextField()
+    {
+        numItemsTextField = new JTextField();
+        numItemsTextField.setBounds(241, 20, 500, 25);
+        websitePanel.add(numItemsTextField);
+    }
 
+    public void setUpItemIDTextField()
+    {
+        itemIDTextField = new JTextField();
+        itemIDTextField.setBounds(241, 40, 500, 25);
+        websitePanel.add(itemIDTextField);
+    }
 
+    public void setUpItemQuantityTextField()
+    {
+        itemQuantityTextField = new JTextField();
+        itemQuantityTextField.setBounds(241, 60, 500, 25);
+        websitePanel.add(itemQuantityTextField);
+    }
+
+    public void setUpItemInfoTextField()
+    {
+        itemInfoTextField = new JTextField();
+        itemInfoTextField.setBounds(241, 80, 500, 25);
+        itemInfoTextField.setEnabled(false);
+        websitePanel.add(itemInfoTextField);
+    }
+
+    public void setUpOrderSubtotalTextField()
+    {
+        orderSubtotalTextField = new JTextField();
+        orderSubtotalTextField.setBounds(241, 100, 500, 25);
+        orderSubtotalTextField.setEnabled(false);
+        orderSubtotalTextField.setText("$0.00");
+        websitePanel.add(orderSubtotalTextField);
+    }
 
     public static void main(String [] args)
     {
