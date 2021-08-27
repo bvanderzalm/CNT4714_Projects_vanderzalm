@@ -1,6 +1,12 @@
-import javax.swing.*;
+// Bradley Vanderzalm
+// CNT 4714, Fall 2021
 
-public class NileDotCom
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class NileDotCom implements ActionListener
 {
     private static JPanel websitePanel;
     private static JFrame websiteFrame;
@@ -65,7 +71,12 @@ public class NileDotCom
 
     public void setUpButtons()
     {
-
+        setUpProcessItemButton();
+        setUpConfirmItemButton();
+        setUpViewOrderButton();
+        setUpFinishOrderButton();
+        setUpNewOrderButton();
+        setUpExitButton();
     }
 
     //******************** Setup for labels ********************
@@ -145,9 +156,111 @@ public class NileDotCom
         websitePanel.add(orderSubtotalTextField);
     }
 
+    //******************** Setup for Buttons ********************
+
+    public void setUpProcessItemButton()
+    {
+        processItemButton = new JButton("Process Item #~");
+
+        Dimension tempCoords = processItemButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("process item width is " + width);
+
+        processItemButton.setBounds(10, 150, width, height);
+//        processItemButton.addActionListener();
+        websitePanel.add(processItemButton);
+    }
+
+    public void setUpConfirmItemButton()
+    {
+        confirmItemButton = new JButton("Confirm Item #~");
+
+        Dimension tempCoords = confirmItemButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("confirm item width is " + width);
+
+        confirmItemButton.setBounds(159, 150, width, height);
+
+        confirmItemButton.setEnabled(false);
+        websitePanel.add(confirmItemButton);
+    }
+
+    public void setUpViewOrderButton()
+    {
+        viewOrderButton = new JButton("View Order");
+
+        Dimension tempCoords = viewOrderButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("view order width is " + width);
+
+        viewOrderButton.setBounds(311, 150, width, height);
+
+        viewOrderButton.setEnabled(false);
+        websitePanel.add(viewOrderButton);
+    }
+
+    public void setUpFinishOrderButton()
+    {
+        finishOrderButton = new JButton("Finish Order");
+
+        Dimension tempCoords = finishOrderButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("finish order width is " + width);
+
+        finishOrderButton.setBounds(428, 150, width, height);
+
+        finishOrderButton.setEnabled(false);
+        websitePanel.add(finishOrderButton);
+    }
+
+    public void setUpNewOrderButton()
+    {
+        newOrderButton = new JButton("New Order");
+
+        Dimension tempCoords = newOrderButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("new order width is " + width);
+
+        newOrderButton.setBounds(554, 150, width, height);
+
+        websitePanel.add(newOrderButton);
+    }
+
+    public void setUpExitButton()
+    {
+        exitButton = new JButton("Exit");
+
+        Dimension tempCoords = exitButton.getPreferredSize();
+        int width = (int)Math.round(tempCoords.getWidth());
+        int height = (int)Math.round(tempCoords.getHeight());
+
+        System.out.println("exit width is " + width);
+
+        exitButton.setBounds(669, 150, width, height);
+
+        websitePanel.add(exitButton);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+
+    }
+
     public static void main(String [] args)
     {
         NileDotCom nile = new NileDotCom();
         nile.runWebsite();
     }
+
 }
