@@ -47,36 +47,61 @@ public class NileDotCom
 
     public void setUpLabelInstructions()
     {
-        numItemsLabel = new JLabel("Enter number of items in this order: ", SwingConstants.RIGHT);
-        numItemsLabel.setBounds(10, 20, 230, 25);
-        websitePanel.add(numItemsLabel);
-
-        itemIDLabel = new JLabel("Enter item ID for Item #~: ", SwingConstants.RIGHT);
-        itemIDLabel.setBounds(10,40, 230, 25);
-        websitePanel.add(itemIDLabel);
-
-        itemQuantityLabel = new JLabel("Enter quantity for Item #~: ", SwingConstants.RIGHT);
-        itemQuantityLabel.setBounds(10, 60, 230, 25);
-        websitePanel.add(itemQuantityLabel);
-
-        itemInfoLabel = new JLabel("Item #~ info: ", SwingConstants.RIGHT);
-        itemInfoLabel.setBounds(10, 80, 230, 25);
-        websitePanel.add(itemInfoLabel);
-
-        orderSubtotalLabel = new JLabel("Order subtotal for ~ item(s): ", SwingConstants.RIGHT);
-        orderSubtotalLabel.setBounds(10, 100, 230, 25);
-        websitePanel.add(orderSubtotalLabel);
+        setUpNumItemsLabel();
+        setUpItemIDLabel();
+        setUpItemQuantityLabel();
+        setUpItemInfoLabel();
+        setUpOrderSubtotalLabel();
     }
 
     public void setUpUserTextFields()
     {
-
+        
     }
 
     public void setUpButtons()
     {
 
     }
+
+    public void setUpNumItemsLabel()
+    {
+        numItemsLabel = new JLabel("Enter number of items in this order: ", SwingConstants.RIGHT);
+        numItemsLabel.setBounds(10, 20, 230, 25);
+        websitePanel.add(numItemsLabel);
+    }
+
+    public void setUpItemIDLabel()
+    {
+        itemIDLabel = new JLabel("Enter item ID for Item #~: ", SwingConstants.RIGHT);
+        itemIDLabel.setBounds(10,40, 230, 25);
+        websitePanel.add(itemIDLabel);
+    }
+
+    public void setUpItemQuantityLabel()
+    {
+        itemQuantityLabel = new JLabel("Enter quantity for Item #~: ", SwingConstants.RIGHT);
+        itemQuantityLabel.setBounds(10, 60, 230, 25);
+        websitePanel.add(itemQuantityLabel);
+    }
+
+    public void setUpItemInfoLabel()
+    {
+        itemInfoLabel = new JLabel("Item #~ info: ", SwingConstants.RIGHT);
+        itemInfoLabel.setBounds(10, 80, 230, 25);
+        websitePanel.add(itemInfoLabel);
+    }
+
+    public void setUpOrderSubtotalLabel()
+    {
+        orderSubtotalLabel = new JLabel("Order subtotal for ~ item(s): ", SwingConstants.RIGHT);
+        orderSubtotalLabel.setBounds(10, 100, 230, 25);
+        websitePanel.add(orderSubtotalLabel);
+    }
+
+
+
+
 
     public static void main(String [] args)
     {
