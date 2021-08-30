@@ -5,8 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
-public class NileDotCom implements ActionListener
+public class NileDotCom
 {
     private static JPanel websitePanel;
     private static JFrame websiteFrame;
@@ -30,13 +31,15 @@ public class NileDotCom implements ActionListener
     private static JButton newOrderButton;
     private static JButton exitButton;
 
-    public void runWebsite()
+    public void startUpWebsite()
     {
         openPrimaryGUI();
         setUpLabelInstructions();
         setUpUserTextFields();
         setUpButtons();
         websiteFrame.setVisible(true);
+
+        runWebsite();
     }
 
     public void openPrimaryGUI()
@@ -45,7 +48,7 @@ public class NileDotCom implements ActionListener
         websiteFrame = new JFrame();
         websiteFrame.setSize(800, 400);
         websiteFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        websiteFrame.setTitle("Nile Dot Com - Bradley Vanderzalm");
+        websiteFrame.setTitle("Nile Dot Com BV");
         websiteFrame.add(websitePanel);
 
         websitePanel.setLayout(null);
@@ -77,6 +80,12 @@ public class NileDotCom implements ActionListener
         setUpFinishOrderButton();
         setUpNewOrderButton();
         setUpExitButton();
+        setUpButtonActionListeners();
+    }
+
+    public void runWebsite()
+    {
+        
     }
 
     //******************** Setup for labels ********************
@@ -166,7 +175,7 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("process item width is " + width);
+//        System.out.println("process item width is " + width);
 
         processItemButton.setBounds(10, 150, width, height);
 //        processItemButton.addActionListener();
@@ -181,11 +190,11 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("confirm item width is " + width);
+//        System.out.println("confirm item width is " + width);
 
         confirmItemButton.setBounds(159, 150, width, height);
 
-        confirmItemButton.setEnabled(false);
+//        confirmItemButton.setEnabled(false);
         websitePanel.add(confirmItemButton);
     }
 
@@ -197,11 +206,11 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("view order width is " + width);
+//        System.out.println("view order width is " + width);
 
         viewOrderButton.setBounds(311, 150, width, height);
 
-        viewOrderButton.setEnabled(false);
+//        viewOrderButton.setEnabled(false);
         websitePanel.add(viewOrderButton);
     }
 
@@ -213,11 +222,11 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("finish order width is " + width);
+//        System.out.println("finish order width is " + width);
 
         finishOrderButton.setBounds(428, 150, width, height);
 
-        finishOrderButton.setEnabled(false);
+//        finishOrderButton.setEnabled(false);
         websitePanel.add(finishOrderButton);
     }
 
@@ -229,7 +238,7 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("new order width is " + width);
+//        System.out.println("new order width is " + width);
 
         newOrderButton.setBounds(554, 150, width, height);
 
@@ -244,23 +253,66 @@ public class NileDotCom implements ActionListener
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-        System.out.println("exit width is " + width);
+//        System.out.println("exit width is " + width);
 
         exitButton.setBounds(669, 150, width, height);
 
         websitePanel.add(exitButton);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e)
+    public void setUpButtonActionListeners()
     {
+        ActionListener buttonActionListener = new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                Object actionEventObject = e.getSource();
 
+                if (actionEventObject == processItemButton)
+                {
+                    System.out.println("Process Item");
+                }
+
+                else if (actionEventObject == confirmItemButton)
+                {
+                    System.out.println("Confirm Item");
+                }
+
+                else if (actionEventObject == viewOrderButton)
+                {
+                    System.out.println("View Order");
+                }
+
+                else if (actionEventObject == finishOrderButton)
+                {
+                    System.out.println("Finish Order");
+                }
+
+                else if (actionEventObject == newOrderButton)
+                {
+                    System.out.println("New Order");
+                }
+
+                else if (actionEventObject == exitButton)
+                {
+                    // Close the GUI and exit the program.
+                    websiteFrame.dispatchEvent(new WindowEvent(websiteFrame, WindowEvent.WINDOW_CLOSING));
+                }
+            }
+        };
+
+        processItemButton.addActionListener(buttonActionListener);
+        confirmItemButton.addActionListener(buttonActionListener);
+        viewOrderButton.addActionListener(buttonActionListener);
+        finishOrderButton.addActionListener(buttonActionListener);
+        newOrderButton.addActionListener(buttonActionListener);
+        exitButton.addActionListener(buttonActionListener);
     }
 
     public static void main(String [] args)
     {
         NileDotCom nile = new NileDotCom();
-        nile.runWebsite();
+        nile.startUpWebsite();
     }
-
 }
