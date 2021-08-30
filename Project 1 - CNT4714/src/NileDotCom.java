@@ -85,7 +85,65 @@ public class NileDotCom
 
     public void runWebsite()
     {
-        
+
+    }
+
+    public void processItem()
+    {
+        String numItemsStr = null;
+        String itemID;
+        String itemQuantityStr;
+        int numItems;
+        int itemQuantity;
+
+        while(true)
+        {
+            try
+            {
+                numItemsStr = numItemsTextField.getText();
+                itemID = itemIDTextField.getText();
+                itemQuantityStr = itemQuantityTextField.getText();
+            }
+            catch (NullPointerException ex)
+            {
+                printErrorMsg("Make sure to fill out all necessary boxes.");
+                break;
+            }
+
+            try
+            {
+                numItems = Integer.parseInt(numItemsStr);
+                itemQuantity = Integer.parseInt(itemQuantityStr);
+            }
+            catch (NumberFormatException ex)
+            {
+                printErrorMsg("Make sure to fill all boxes correctly.");
+                break;
+            }
+
+            if (numItems <= 0 || itemQuantity <= 0)
+            {
+                printErrorMsg("Please enter a number greater than zero");
+                break;
+            }
+
+            System.out.println("All input is good. time to check inventory.txt");
+            System.out.println("If nothing pops up then error message saying item is not in stock or not in store.");
+            System.out.println("If everything good then send info into arraylist. Otherwise break out and don't do anything.");
+            System.out.println("Break");
+
+            itemInfoTextField.setText("If everything is good the product info should pop up here.");
+            break;
+        }
+
+
+
+
+    }
+
+    private void printErrorMsg(String s)
+    {
+        System.out.println(s);
     }
 
     //******************** Setup for labels ********************
@@ -271,7 +329,7 @@ public class NileDotCom
 
                 if (actionEventObject == processItemButton)
                 {
-                    System.out.println("Process Item");
+                    processItem();
                 }
 
                 else if (actionEventObject == confirmItemButton)
