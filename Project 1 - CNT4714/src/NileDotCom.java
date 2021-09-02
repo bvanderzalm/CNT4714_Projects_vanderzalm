@@ -6,30 +6,38 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class NileDotCom
 {
     private static JPanel websitePanel;
     private static JFrame websiteFrame;
 
-    private static JLabel numItemsLabel;
-    private static JLabel itemIDLabel;
-    private static JLabel itemQuantityLabel;
-    private static JLabel itemInfoLabel;
-    private static JLabel orderSubtotalLabel;
+    private JLabel numItemsLabel, itemIDLabel, itemQuantityLabel, itemInfoLabel, orderSubtotalLabel;
+//    private static JLabel itemIDLabel;
+//    private static JLabel itemQuantityLabel;
+//    private static JLabel itemInfoLabel;
+//    private static JLabel orderSubtotalLabel;
 
-    private static JTextField numItemsTextField;
-    private static JTextField itemIDTextField;
-    private static JTextField itemQuantityTextField;
-    private static JTextField itemInfoTextField;
-    private static JTextField orderSubtotalTextField;
+    private JTextField numItemsTextField, itemIDTextField, itemQuantityTextField, itemInfoTextField, orderSubtotalTextField;
+//    private static JTextField itemIDTextField;
+//    private static JTextField itemQuantityTextField;
+//    private static JTextField itemInfoTextField;
+//    private static JTextField orderSubtotalTextField;
 
-    private static JButton processItemButton;
-    private static JButton confirmItemButton;
-    private static JButton viewOrderButton;
-    private static JButton finishOrderButton;
-    private static JButton newOrderButton;
-    private static JButton exitButton;
+
+    private JButton processItemButton, confirmItemButton, viewOrderButton, finishOrderButton, newOrderButton, exitButton;
+//    private static JButton confirmItemButton;
+//    private static JButton viewOrderButton;
+//    private static JButton finishOrderButton;
+//    private static JButton newOrderButton;
+//    private static JButton exitButton;
 
     public void startUpWebsite()
     {
@@ -39,7 +47,7 @@ public class NileDotCom
         setUpButtons();
         websiteFrame.setVisible(true);
 
-        runWebsite();
+//        runWebsite();
     }
 
     public void openPrimaryGUI()
@@ -83,13 +91,7 @@ public class NileDotCom
         setUpButtonActionListeners();
     }
 
-    public void runWebsite()
-    {
-
-    }
-
-    public void processItem()
-    {
+    public void processItem() throws Exception {
         String numItemsStr = null;
         String itemID;
         String itemQuantityStr;
@@ -127,23 +129,94 @@ public class NileDotCom
                 break;
             }
 
-            System.out.println("All input is good. time to check inventory.txt");
-            System.out.println("If nothing pops up then error message saying item is not in stock or not in store.");
-            System.out.println("If everything good then send info into arraylist. Otherwise break out and don't do anything.");
-            System.out.println("Break");
+            boolean inStock = checkInventory(numItems, itemID, itemQuantity);
 
-            itemInfoTextField.setText("If everything is good the product info should pop up here.");
             break;
         }
-
-
-
-
     }
 
     private void printErrorMsg(String s)
     {
         System.out.println(s);
+    }
+
+    // maybe change this to void instead of boolean. Seems like this method is doing all of the work anyway.
+    public boolean checkInventory(int numItems, String itemID, int itemQuantity)
+    {
+        try (Scanner input = new Scanner(Paths.get("inventory.txt")))
+        {
+            while (input.hasNext())
+            {
+                String databaseLine = null;
+                databaseLine = input.nextLine();
+//                System.out.println(databaseLine);
+                String[] tempItemDetails = databaseLine.split(", ");
+//                System.out.println(Arrays.toString(tempItemDetails));
+
+                if (tempItemDetails[0].equalsIgnoreCase(itemID))
+                {
+//                    System.out.println("Found item");
+
+                    if (tempItemDetails[2].equals("true"))
+                    {
+                        double itemPrice = Double.parseDouble(tempItemDetails[3]);
+                        double totalPrice = itemPrice * itemQuantity;
+                        int discountRate = checkForDiscount(itemQuantity);
+
+                        if (discountRate != 0)
+                        {
+                            totalPrice = applyDiscount(totalPrice, discountRate);
+                        }
+
+                        totalPrice = Math.round(totalPrice);
+
+                        String itemInfo =
+                                itemID + " " + tempItemDetails[1] + " " + "$" +
+                                itemPrice + " " + itemQuantity + " " +
+                                discountRate + "%" + " " + "$" + totalPrice;
+
+                        itemInfoTextField.setText(itemInfo);
+                    }
+
+                    else
+                    {
+                        printErrorMsg("Sorry... that item is out of stock, please try another item");
+                    }
+
+                    break;
+                }
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            printErrorMsg("Error, database not found");
+        }
+        catch (IOException ex)
+        {
+            printErrorMsg("Unexpected error.");
+        }
+
+        return false;
+    }
+
+    public int checkForDiscount(int itemQnty)
+    {
+        if (itemQnty >= 1 && itemQnty <= 4)
+            return 0;
+        else if (itemQnty >= 5 && itemQnty<= 9)
+            return 10;
+        else if (itemQnty >= 10 && itemQnty <= 14)
+            return 15;
+        else
+            return 20;
+    }
+
+    public double applyDiscount(double price, double rate)
+    {
+        return (price - (price * (rate / 100)));
+//        double actualRate = rate / 100;
+//        double subtractThis = price * actualRate;
+//        return price - subtractThis;
     }
 
     //******************** Setup for labels ********************
@@ -329,7 +402,11 @@ public class NileDotCom
 
                 if (actionEventObject == processItemButton)
                 {
-                    processItem();
+                    try {
+                        processItem();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
                 }
 
                 else if (actionEventObject == confirmItemButton)
