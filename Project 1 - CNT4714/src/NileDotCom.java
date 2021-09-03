@@ -6,12 +6,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class NileDotCom
@@ -108,7 +105,7 @@ public class NileDotCom
             }
             catch (NullPointerException ex)
             {
-                printErrorMsg("Make sure to fill out all necessary boxes.");
+                popUpMsg("Make sure to fill out all necessary boxes.", "Nile Dot Com - ERROR", 0);
                 break;
             }
 
@@ -119,43 +116,48 @@ public class NileDotCom
             }
             catch (NumberFormatException ex)
             {
-                printErrorMsg("Make sure to fill all boxes correctly.");
+                popUpMsg("Make sure to fill all boxes correctly.", "Nile Dot Com - ERROR", 0);
                 break;
             }
 
             if (numItems <= 0 || itemQuantity <= 0)
             {
-                printErrorMsg("Please enter a number greater than zero");
+                popUpMsg("Please enter a number greater than zero", "Nile Dot Com - ERROR", 0);
                 break;
             }
 
-            boolean inStock = checkInventory(numItems, itemID, itemQuantity);
+            checkInventory(numItems, itemID, itemQuantity);
 
             break;
         }
     }
 
-    private void printErrorMsg(String s)
+    private void popUpMsg(String msg, String title, int type)
     {
-        System.out.println(s);
+        // Error msg
+        if (type == 0)
+            JOptionPane.showMessageDialog(websiteFrame, msg, title, JOptionPane.ERROR_MESSAGE);
+
+        // Confirm item pop up
+        else if (type == 1)
+            JOptionPane.showMessageDialog(websiteFrame, msg, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     // maybe change this to void instead of boolean. Seems like this method is doing all of the work anyway.
-    public boolean checkInventory(int numItems, String itemID, int itemQuantity)
+    public void checkInventory(int numItems, String itemID, int itemQuantity)
     {
+        boolean inDatabase = false;
         try (Scanner input = new Scanner(Paths.get("inventory.txt")))
         {
             while (input.hasNext())
             {
                 String databaseLine = null;
                 databaseLine = input.nextLine();
-//                System.out.println(databaseLine);
                 String[] tempItemDetails = databaseLine.split(", ");
-//                System.out.println(Arrays.toString(tempItemDetails));
 
                 if (tempItemDetails[0].equalsIgnoreCase(itemID))
                 {
-//                    System.out.println("Found item");
+                    inDatabase = true;
 
                     if (tempItemDetails[2].equals("true"))
                     {
@@ -180,23 +182,24 @@ public class NileDotCom
 
                     else
                     {
-                        printErrorMsg("Sorry... that item is out of stock, please try another item");
+                        popUpMsg("Sorry... that item is out of stock, please try another item",
+                                "Nile Dot Com - Item out of Stock", 1);
                     }
 
                     break;
                 }
             }
+            if (!inDatabase)
+                popUpMsg("Item ID " + itemID + " does not exist.", "Nile Dot Com - ERROR", 0);
         }
         catch (FileNotFoundException ex)
         {
-            printErrorMsg("Error, database not found");
+            popUpMsg("Error, database not found", "Nile Dot Com - ERROR", 0);
         }
         catch (IOException ex)
         {
-            printErrorMsg("Unexpected error.");
+            popUpMsg("Unexpected error.", "Nile Dot Com - ERROR", 0);
         }
-
-        return false;
     }
 
     public int checkForDiscount(int itemQnty)
