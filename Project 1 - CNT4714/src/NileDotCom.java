@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.lang.StringBuilder;
 
 public class NileDotCom
 {
@@ -214,6 +215,27 @@ public class NileDotCom
         updateLabelsForNextItem();
         confirmItemButton.setEnabled(false);
         processItemButton.setEnabled(true);
+    }
+
+    public void viewOrder()
+    {
+        if (shoppingCart.isEmpty())
+            popUpMsg("You currently don't have any items in the cart.",
+                    "Nile Dot Com - Current Shopping Cart Status", 1);
+
+        else
+        {
+            StringBuilder sb = new StringBuilder();
+            String shoppingCartStatus;
+            for (int i = 0; i < shoppingCart.size(); i++)
+            {
+                sb.append((i + 1) + ". " + shoppingCart.get(i) + "\n");
+            }
+
+            shoppingCartStatus = sb.toString();
+
+            popUpMsg(shoppingCartStatus, "Nile Dot Com - Current Shopping Cart Status", 1);
+        }
     }
 
     public int checkForDiscount(int itemQnty)
@@ -430,7 +452,7 @@ public class NileDotCom
 
                 else if (actionEventObject == viewOrderButton)
                 {
-                    System.out.println("View Order");
+                    viewOrder();
                 }
 
                 else if (actionEventObject == finishOrderButton)
