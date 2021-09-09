@@ -9,32 +9,25 @@ import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class NileDotCom
 {
-    private static JPanel websitePanel;
-    private static JFrame websiteFrame;
-
+    private JPanel websitePanel;
+    private JFrame websiteFrame;
     private JLabel numItemsLabel, itemIDLabel, itemQuantityLabel, itemInfoLabel, orderSubtotalLabel;
-//    private static JLabel itemIDLabel;
-//    private static JLabel itemQuantityLabel;
-//    private static JLabel itemInfoLabel;
-//    private static JLabel orderSubtotalLabel;
-
     private JTextField numItemsTextField, itemIDTextField, itemQuantityTextField, itemInfoTextField, orderSubtotalTextField;
-//    private static JTextField itemIDTextField;
-//    private static JTextField itemQuantityTextField;
-//    private static JTextField itemInfoTextField;
-//    private static JTextField orderSubtotalTextField;
-
-
     private JButton processItemButton, confirmItemButton, viewOrderButton, finishOrderButton, newOrderButton, exitButton;
-//    private static JButton confirmItemButton;
-//    private static JButton viewOrderButton;
-//    private static JButton finishOrderButton;
-//    private static JButton newOrderButton;
-//    private static JButton exitButton;
+
+    private int itemNumber = 1;
+    private int totalNumItems;
+    private double priceTotal = 0.00;
+    private ArrayList<String> shoppingCart = new ArrayList<String>();
+
+    // Holds info about item temporarily after user presses Process Item.
+    private String itemInfoRAM;
+    private double itemPriceRAM;
 
     public void startUpWebsite()
     {
@@ -88,14 +81,15 @@ public class NileDotCom
         setUpButtonActionListeners();
     }
 
-    public void processItem() throws Exception {
+    public void processItem() throws Exception
+    {
         String numItemsStr = null;
         String itemID;
         String itemQuantityStr;
         int numItems;
         int itemQuantity;
 
-        while(true)
+        while (true)
         {
             try
             {
@@ -126,7 +120,9 @@ public class NileDotCom
                 break;
             }
 
-            checkInventory(numItems, itemID, itemQuantity);
+            this.totalNumItems = numItems;
+            numItemsTextField.setEnabled(false);
+            checkInventory(itemID, itemQuantity);
 
             break;
         }
@@ -143,8 +139,7 @@ public class NileDotCom
             JOptionPane.showMessageDialog(websiteFrame, msg, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // maybe change this to void instead of boolean. Seems like this method is doing all of the work anyway.
-    public void checkInventory(int numItems, String itemID, int itemQuantity)
+    public void checkInventory(String itemID, int itemQuantity)
     {
         boolean inDatabase = false;
         try (Scanner input = new Scanner(Paths.get("inventory.txt")))
@@ -162,22 +157,24 @@ public class NileDotCom
                     if (tempItemDetails[2].equals("true"))
                     {
                         double itemPrice = Double.parseDouble(tempItemDetails[3]);
-                        double totalPrice = itemPrice * itemQuantity;
+                        double subtotalPrice = itemPrice * itemQuantity;
                         int discountRate = checkForDiscount(itemQuantity);
 
                         if (discountRate != 0)
                         {
-                            totalPrice = applyDiscount(totalPrice, discountRate);
+                            subtotalPrice = applyDiscount(subtotalPrice, discountRate);
                         }
 
-                        totalPrice = Math.round(totalPrice);
-
-                        String itemInfo =
+                        itemInfoRAM =
                                 itemID + " " + tempItemDetails[1] + " " + "$" +
-                                itemPrice + " " + itemQuantity + " " +
-                                discountRate + "%" + " " + "$" + totalPrice;
+                                String.format("%.2f", itemPrice) + " " + itemQuantity + " " +
+                                discountRate + "%" + " " + "$" + String.format("%.2f", subtotalPrice);
 
-                        itemInfoTextField.setText(itemInfo);
+                        itemInfoLabel.setText("Item #" + itemNumber + " info: ");
+                        itemInfoTextField.setText(itemInfoRAM);
+                        itemPriceRAM = subtotalPrice;
+                        processItemButton.setEnabled(false);
+                        confirmItemButton.setEnabled(true);
                     }
 
                     else
@@ -202,6 +199,23 @@ public class NileDotCom
         }
     }
 
+    public void confirmItem()
+    {
+        if (shoppingCart.isEmpty())
+            viewOrderButton.setEnabled(true);
+
+        popUpMsg("Item #" + itemNumber + " accepted. Added to your cart.",
+                "Nile Dot Com - Item Confirmed", 1);
+
+        itemNumber++;
+        shoppingCart.add(itemInfoRAM);
+        priceTotal += itemPriceRAM;
+        orderSubtotalTextField.setText(String.format("%.2f", priceTotal));
+        updateLabelsForNextItem();
+        confirmItemButton.setEnabled(false);
+        processItemButton.setEnabled(true);
+    }
+
     public int checkForDiscount(int itemQnty)
     {
         if (itemQnty >= 1 && itemQnty <= 4)
@@ -222,6 +236,17 @@ public class NileDotCom
 //        return price - subtractThis;
     }
 
+    public void updateLabelsForNextItem()
+    {
+        itemIDLabel.setText("Enter item ID for Item #" + itemNumber + ": ");
+        itemIDTextField.setText("");
+        itemQuantityLabel.setText("Enter quantity for Item #" + itemNumber + ": ");
+        itemQuantityTextField.setText("");
+        orderSubtotalLabel.setText("Order subtotal for " + (itemNumber - 1) + "item(s): ");
+        processItemButton.setText("Process Item #" + itemNumber);
+        confirmItemButton.setText("Confirm Item #" + itemNumber);
+    }
+
     //******************** Setup for labels ********************
 
     public void setUpNumItemsLabel()
@@ -233,28 +258,31 @@ public class NileDotCom
 
     public void setUpItemIDLabel()
     {
-        itemIDLabel = new JLabel("Enter item ID for Item #~: ", SwingConstants.RIGHT);
+        itemIDLabel = new JLabel("Enter item ID for Item #" + itemNumber +
+                ": ", SwingConstants.RIGHT);
         itemIDLabel.setBounds(10,40, 230, 25);
         websitePanel.add(itemIDLabel);
     }
 
     public void setUpItemQuantityLabel()
     {
-        itemQuantityLabel = new JLabel("Enter quantity for Item #~: ", SwingConstants.RIGHT);
+        itemQuantityLabel = new JLabel("Enter quantity for Item #" + itemNumber +
+                ": ", SwingConstants.RIGHT);
         itemQuantityLabel.setBounds(10, 60, 230, 25);
         websitePanel.add(itemQuantityLabel);
     }
 
     public void setUpItemInfoLabel()
     {
-        itemInfoLabel = new JLabel("Item #~ info: ", SwingConstants.RIGHT);
+        itemInfoLabel = new JLabel("Item #" + itemNumber + " info: ", SwingConstants.RIGHT);
         itemInfoLabel.setBounds(10, 80, 230, 25);
         websitePanel.add(itemInfoLabel);
     }
 
     public void setUpOrderSubtotalLabel()
     {
-        orderSubtotalLabel = new JLabel("Order subtotal for ~ item(s): ", SwingConstants.RIGHT);
+        orderSubtotalLabel = new JLabel("Order subtotal for " + totalNumItems +
+                " item(s): ", SwingConstants.RIGHT);
         orderSubtotalLabel.setBounds(10, 100, 230, 25);
         websitePanel.add(orderSubtotalLabel);
     }
@@ -295,7 +323,6 @@ public class NileDotCom
         orderSubtotalTextField = new JTextField();
         orderSubtotalTextField.setBounds(241, 100, 500, 25);
         orderSubtotalTextField.setEnabled(false);
-        orderSubtotalTextField.setText("$0.00");
         websitePanel.add(orderSubtotalTextField);
     }
 
@@ -303,32 +330,27 @@ public class NileDotCom
 
     public void setUpProcessItemButton()
     {
-        processItemButton = new JButton("Process Item #~");
+        processItemButton = new JButton("Process Item #" + itemNumber);
 
         Dimension tempCoords = processItemButton.getPreferredSize();
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("process item width is " + width);
-
         processItemButton.setBounds(10, 150, width, height);
-//        processItemButton.addActionListener();
         websitePanel.add(processItemButton);
     }
 
     public void setUpConfirmItemButton()
     {
-        confirmItemButton = new JButton("Confirm Item #~");
+        confirmItemButton = new JButton("Confirm Item #" + itemNumber);
 
         Dimension tempCoords = confirmItemButton.getPreferredSize();
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("confirm item width is " + width);
-
         confirmItemButton.setBounds(159, 150, width, height);
 
-//        confirmItemButton.setEnabled(false);
+        confirmItemButton.setEnabled(false);
         websitePanel.add(confirmItemButton);
     }
 
@@ -340,11 +362,9 @@ public class NileDotCom
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("view order width is " + width);
-
         viewOrderButton.setBounds(311, 150, width, height);
 
-//        viewOrderButton.setEnabled(false);
+        viewOrderButton.setEnabled(false);
         websitePanel.add(viewOrderButton);
     }
 
@@ -356,11 +376,8 @@ public class NileDotCom
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("finish order width is " + width);
-
         finishOrderButton.setBounds(428, 150, width, height);
-
-//        finishOrderButton.setEnabled(false);
+        finishOrderButton.setEnabled(false);
         websitePanel.add(finishOrderButton);
     }
 
@@ -372,10 +389,7 @@ public class NileDotCom
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("new order width is " + width);
-
         newOrderButton.setBounds(554, 150, width, height);
-
         websitePanel.add(newOrderButton);
     }
 
@@ -387,10 +401,7 @@ public class NileDotCom
         int width = (int)Math.round(tempCoords.getWidth());
         int height = (int)Math.round(tempCoords.getHeight());
 
-//        System.out.println("exit width is " + width);
-
         exitButton.setBounds(669, 150, width, height);
-
         websitePanel.add(exitButton);
     }
 
@@ -414,7 +425,7 @@ public class NileDotCom
 
                 else if (actionEventObject == confirmItemButton)
                 {
-                    System.out.println("Confirm Item");
+                    confirmItem();
                 }
 
                 else if (actionEventObject == viewOrderButton)
