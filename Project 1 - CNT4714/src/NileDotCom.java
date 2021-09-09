@@ -219,23 +219,15 @@ public class NileDotCom
 
     public void viewOrder()
     {
-        if (shoppingCart.isEmpty())
-            popUpMsg("You currently don't have any items in the cart.",
-                    "Nile Dot Com - Current Shopping Cart Status", 1);
-
-        else
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < shoppingCart.size(); i++)
         {
-            StringBuilder sb = new StringBuilder();
-            String shoppingCartStatus;
-            for (int i = 0; i < shoppingCart.size(); i++)
-            {
-                sb.append((i + 1) + ". " + shoppingCart.get(i) + "\n");
-            }
-
-            shoppingCartStatus = sb.toString();
-
-            popUpMsg(shoppingCartStatus, "Nile Dot Com - Current Shopping Cart Status", 1);
+            sb.append((i + 1) + ". " + shoppingCart.get(i) + "\n");
         }
+
+        String shoppingCartStatus = "";
+        shoppingCartStatus = sb.toString();
+        popUpMsg(shoppingCartStatus, "Nile Dot Com - Current Shopping Cart Status", 1);
     }
 
     public int checkForDiscount(int itemQnty)
