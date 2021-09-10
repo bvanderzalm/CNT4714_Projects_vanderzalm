@@ -22,7 +22,7 @@ public class NileDotCom
     private JButton processItemButton, confirmItemButton, viewOrderButton, finishOrderButton, newOrderButton, exitButton;
 
     private int itemNumber = 1;
-    private int totalNumItems;
+    private int totalNumItems = 0;
     private double priceTotal = 0.00;
     private ArrayList<String> shoppingCart = new ArrayList<String>();
 
@@ -133,7 +133,11 @@ public class NileDotCom
     {
         // Error msg
         if (type == 0)
+        {
             JOptionPane.showMessageDialog(websiteFrame, msg, title, JOptionPane.ERROR_MESSAGE);
+            itemIDTextField.setText("");
+            itemQuantityTextField.setText("");
+        }
 
         // Confirm item pop up
         else if (type == 1)
@@ -181,7 +185,7 @@ public class NileDotCom
                     else
                     {
                         popUpMsg("Sorry... that item is out of stock, please try another item",
-                                "Nile Dot Com - Item out of Stock", 1);
+                                "Nile Dot Com - ERROR", 0);
                     }
 
                     break;
@@ -215,19 +219,53 @@ public class NileDotCom
         updateLabelsForNextItem();
         confirmItemButton.setEnabled(false);
         processItemButton.setEnabled(true);
+
+        // If the user reached the last item. Disable user from adding more items.
+        if (itemNumber > totalNumItems)
+        {
+            itemIDTextField.setText("");
+            itemIDTextField.setEnabled(false);
+            itemIDLabel.setText("");
+            itemQuantityTextField.setText("");
+            itemQuantityTextField.setEnabled(false);
+            itemQuantityLabel.setText("");
+
+            processItemButton.setText("Process Item");
+            processItemButton.setEnabled(false);
+            confirmItemButton.setText("Confirm Item");
+            confirmItemButton.setEnabled(false);
+        }
     }
 
     public void viewOrder()
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < shoppingCart.size(); i++)
-        {
             sb.append((i + 1) + ". " + shoppingCart.get(i) + "\n");
-        }
 
         String shoppingCartStatus = "";
         shoppingCartStatus = sb.toString();
         popUpMsg(shoppingCartStatus, "Nile Dot Com - Current Shopping Cart Status", 1);
+    }
+
+    public void finishOrder()
+    {
+
+    }
+
+    public void newOrder()
+    {
+        itemNumber = 1;
+        totalNumItems = 0;
+        priceTotal = 0.00;
+        shoppingCart.clear();
+        clearAllTextFields();
+        changeLabelNumbers();
+
+        processItemButton.setEnabled(true);
+        confirmItemButton.setEnabled(false);
+        viewOrderButton.setEnabled(false);
+        finishOrderButton.setEnabled(false);
     }
 
     public int checkForDiscount(int itemQnty)
@@ -245,9 +283,6 @@ public class NileDotCom
     public double applyDiscount(double price, double rate)
     {
         return (price - (price * (rate / 100)));
-//        double actualRate = rate / 100;
-//        double subtractThis = price * actualRate;
-//        return price - subtractThis;
     }
 
     public void updateLabelsForNextItem()
@@ -256,9 +291,27 @@ public class NileDotCom
         itemIDTextField.setText("");
         itemQuantityLabel.setText("Enter quantity for Item #" + itemNumber + ": ");
         itemQuantityTextField.setText("");
-        orderSubtotalLabel.setText("Order subtotal for " + (itemNumber - 1) + "item(s): ");
+        orderSubtotalLabel.setText("Order subtotal for " + (itemNumber - 1) + " item(s): ");
         processItemButton.setText("Process Item #" + itemNumber);
         confirmItemButton.setText("Confirm Item #" + itemNumber);
+    }
+
+    public void clearAllTextFields()
+    {
+        numItemsTextField.setEnabled(true);
+        numItemsTextField.setText("");
+        itemIDTextField.setText("");
+        itemQuantityTextField.setText("");
+        itemInfoTextField.setText("");
+        orderSubtotalTextField.setText("");
+    }
+
+    public void changeLabelNumbers()
+    {
+        itemIDLabel.setText("Enter item ID for Item #" + itemNumber + ": ");
+        itemQuantityLabel.setText("Enter quantity for Item #" + itemNumber + ": ");
+        itemInfoLabel.setText("Item #" + itemNumber + " info: ");
+        orderSubtotalLabel.setText("Order subtotal for " + (itemNumber - 1) + " item(s): ");
     }
 
     //******************** Setup for labels ********************
@@ -449,12 +502,12 @@ public class NileDotCom
 
                 else if (actionEventObject == finishOrderButton)
                 {
-                    System.out.println("Finish Order");
+//                    finishOrder();
                 }
 
                 else if (actionEventObject == newOrderButton)
                 {
-                    System.out.println("New Order");
+                    newOrder();
                 }
 
                 else if (actionEventObject == exitButton)
