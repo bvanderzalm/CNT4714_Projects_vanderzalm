@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.Scanner;
 import java.lang.StringBuilder;
 import java.util.TimeZone;
@@ -310,40 +311,26 @@ public class NileDotCom
 
     public void saveTransaction(LocalDate date, LocalTime time, TimeZone timeZone)
     {
-        int day = date.getDayOfMonth();
-        int month = date.getMonthValue();
-        int year = date.getYear();
-        int hour = time.getHour();
-        int minute = time.getMinute();
+        String transactionID = generateTransactionID(date, time, timeZone);
         String zone = timeZone.getDisplayName(true, 0);
         String datePattern = "hh:mm:ss a";
-        String timeStr = time.format(DateTimeFormatter.ofPattern(datePattern)) + zone;
-
-        StringBuilder sb = new StringBuilder();
-        if (day < 10)
-            sb.append(0);
-        sb.append(day);
-
-        if (month < 10)
-            sb.append(0);
-        sb.append(month);
-
-        sb.append(year);
-        if (hour < 10)
-            sb.append(0);
-        sb.append(hour);
-
-        if (minute < 10)
-            sb.append(0);
-        sb.append(minute);
-        String transactionID = sb.toString();
+        String timeStr = time.format(DateTimeFormatter.ofPattern(datePattern)) + " " + zone;
         String dateStr = date.getMonthValue() + "/" + date.getDayOfMonth() + "/" + date.getYear();
 
-
-
-
-
-
+        try (Formatter output = new Formatter("transactions.txt"))
+        {
+            for (int i = 0; i < shoppingCart.size(); i++)
+            {
+                Item item = shoppingCart.get(i);
+                output.format("%s, %s, %s, %s, %s, %s, %s, %s, %s%n",
+                        transactionID, item.ID, item.description, item.pricePerItem, item.quantity,
+                        item.discount, item.totalPrice, dateStr, timeStr);
+            }
+        }
+        catch(IOException ex)
+        {
+            popUpMsg("Error occurred trying to save your transaction.", "Nile Dot Com - ERROR", 0);
+        }
     }
     
     public void newOrder()
@@ -376,7 +363,34 @@ public class NileDotCom
                 + "\n\n" + "Thanks for shopping at Nile Dot Com!";
 
         return invoice;
+    }
 
+    public String generateTransactionID(LocalDate date, LocalTime time, TimeZone timeZone)
+    {
+        int day = date.getDayOfMonth(), month = date.getMonthValue(), year = date.getYear();
+        int hour = time.getHour(), minute = time.getMinute();
+
+        StringBuilder sb = new StringBuilder();
+        // These statements are put in for better formatting so the transactionID will
+        // always be the same length. ie: 05 & 15 instead of 5 & 15.
+        if (day < 10)
+            sb.append(0);
+        sb.append(day);
+
+        if (month < 10)
+            sb.append(0);
+        sb.append(month);
+
+        sb.append(year);
+        if (hour < 10)
+            sb.append(0);
+        sb.append(hour);
+
+        if (minute < 10)
+            sb.append(0);
+        sb.append(minute);
+
+        return sb.toString();
     }
 
     public int checkForDiscount(int itemQnty)
