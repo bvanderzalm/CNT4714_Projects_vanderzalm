@@ -1,5 +1,8 @@
-// Bradley Vanderzalm
-// CNT 4714, Fall 2021
+/* Name: Bradley Vanderzalm
+   Course: CNT4714 - Fall 2021
+   Assignment title: Project 1 - Event-driven Enterprise Simulation
+   Date: Sunday September 12, 2021
+ */
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,9 +12,13 @@ import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.lang.StringBuilder;
+import java.util.TimeZone;
 
 public class NileDotCom
 {
@@ -207,7 +214,10 @@ public class NileDotCom
     public void confirmItem()
     {
         if (shoppingCart.isEmpty())
+        {
             viewOrderButton.setEnabled(true);
+            finishOrderButton.setEnabled(true);
+        }
 
         popUpMsg("Item #" + itemNumber + " accepted. Added to your cart.",
                 "Nile Dot Com - Item Confirmed", 1);
@@ -215,7 +225,7 @@ public class NileDotCom
         itemNumber++;
         shoppingCart.add(itemInfoRAM);
         priceTotal += itemPriceRAM;
-        orderSubtotalTextField.setText(String.format("%.2f", priceTotal));
+        orderSubtotalTextField.setText(String.format("$%.2f", priceTotal));
         updateLabelsForNextItem();
         confirmItemButton.setEnabled(false);
         processItemButton.setEnabled(true);
@@ -250,7 +260,16 @@ public class NileDotCom
 
     public void finishOrder()
     {
+        String finalInvoiceStr = createFinalInvoiceString();
 
+        popUpMsg(finalInvoiceStr, "Nile Dot Com - Final Invoice", 1);
+        saveTransaction();
+        newOrder();
+    }
+
+    public void saveTransaction()
+    {
+        
     }
 
     public void newOrder()
@@ -266,6 +285,23 @@ public class NileDotCom
         confirmItemButton.setEnabled(false);
         viewOrderButton.setEnabled(false);
         finishOrderButton.setEnabled(false);
+    }
+
+    public String createFinalInvoiceString()
+    {
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        String datePattern = "hh:mm:ss a";
+        TimeZone timeZone = TimeZone.getDefault();
+
+        String invoice = "Date: " + date.getMonthValue() + "/" + date.getDayOfMonth() + "/"
+                + date.getYear() + ", " + time.format(DateTimeFormatter.ofPattern(datePattern))
+                + " " + timeZone.getDisplayName(true, 0) + "\n\n"
+                + "Number of line items: " + totalNumItems + "\n\n"
+                + "Item# / ID / Title / Price / Qty / Disc % / Subtotal:\n\n";
+
+        return invoice;
+
     }
 
     public int checkForDiscount(int itemQnty)
@@ -300,7 +336,9 @@ public class NileDotCom
     {
         numItemsTextField.setEnabled(true);
         numItemsTextField.setText("");
+        itemIDTextField.setEnabled(true);
         itemIDTextField.setText("");
+        itemQuantityTextField.setEnabled(true);
         itemQuantityTextField.setText("");
         itemInfoTextField.setText("");
         orderSubtotalTextField.setText("");
@@ -502,7 +540,7 @@ public class NileDotCom
 
                 else if (actionEventObject == finishOrderButton)
                 {
-//                    finishOrder();
+                    finishOrder();
                 }
 
                 else if (actionEventObject == newOrderButton)
