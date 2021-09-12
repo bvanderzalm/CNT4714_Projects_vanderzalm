@@ -31,11 +31,41 @@ public class NileDotCom
     private int itemNumber = 1;
     private int totalNumItems = 0;
     private double priceTotal = 0.00;
-    private ArrayList<String> shoppingCart = new ArrayList<String>();
+//    private ArrayList<String> shoppingCart = new ArrayList<String/>();
+    private ArrayList<Item> shoppingCart = new ArrayList<Item>();
 
     // Holds info about item temporarily after user presses Process Item.
     private String itemInfoRAM;
     private double itemPriceRAM;
+    private Item itemRAM;
+
+    class Item
+    {
+        String ID;
+        String description;
+        double pricePerItem;
+        int quantity;
+        double discount;
+        String totalPrice;
+        String fullDescription;
+
+        Item(String ID, String descr, double pricePer, int qnty,
+             double discnt, String totalPrice, String fullDescr)
+        {
+            this.ID = ID;
+            this.description = descr;
+            this.pricePerItem = pricePer;
+            this.quantity = qnty;
+            this.discount = discnt;
+            this.totalPrice = totalPrice;
+            this.fullDescription = fullDescr;
+        }
+
+        public String getFullDescription()
+        {
+            return fullDescription;
+        }
+    }
 
     public void startUpWebsite()
     {
@@ -187,6 +217,10 @@ public class NileDotCom
                         itemPriceRAM = subtotalPrice;
                         processItemButton.setEnabled(false);
                         confirmItemButton.setEnabled(true);
+
+                        itemRAM = new Item(itemID, tempItemDetails[1], itemPrice, itemQuantity,
+                                (discountRate * 0.01), "$" +
+                                String.format("%.2f", subtotalPrice), itemInfoRAM);
                     }
 
                     else
@@ -223,7 +257,8 @@ public class NileDotCom
                 "Nile Dot Com - Item Confirmed", 1);
 
         itemNumber++;
-        shoppingCart.add(itemInfoRAM);
+        shoppingCart.add(itemRAM);
+
         priceTotal += itemPriceRAM;
         orderSubtotalTextField.setText(String.format("$%.2f", priceTotal));
         updateLabelsForNextItem();
@@ -249,29 +284,68 @@ public class NileDotCom
 
     public void viewOrder()
     {
+        popUpMsg(getShoppingCartInfo(), "Nile Dot Com - Current Shopping Cart Status", 1);
+    }
+
+    public String getShoppingCartInfo()
+    {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < shoppingCart.size(); i++)
-            sb.append((i + 1) + ". " + shoppingCart.get(i) + "\n");
+            sb.append((i + 1) + ". " + shoppingCart.get(i).getFullDescription()+ "\n");
 
-        String shoppingCartStatus = "";
-        shoppingCartStatus = sb.toString();
-        popUpMsg(shoppingCartStatus, "Nile Dot Com - Current Shopping Cart Status", 1);
+        return sb.toString();
     }
 
     public void finishOrder()
     {
-        String finalInvoiceStr = createFinalInvoiceString();
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        TimeZone timeZone = TimeZone.getDefault();
+        String finalInvoice = createFinalInvoice(date, time, timeZone);
 
-        popUpMsg(finalInvoiceStr, "Nile Dot Com - Final Invoice", 1);
-        saveTransaction();
+        popUpMsg(finalInvoice, "Nile Dot Com - Final Invoice", 1);
+        saveTransaction(date, time, timeZone);
         newOrder();
     }
 
-    public void saveTransaction()
+    public void saveTransaction(LocalDate date, LocalTime time, TimeZone timeZone)
     {
-        
-    }
+        int day = date.getDayOfMonth();
+        int month = date.getMonthValue();
+        int year = date.getYear();
+        int hour = time.getHour();
+        int minute = time.getMinute();
+        String zone = timeZone.getDisplayName(true, 0);
+        String datePattern = "hh:mm:ss a";
+        String timeStr = time.format(DateTimeFormatter.ofPattern(datePattern)) + zone;
 
+        StringBuilder sb = new StringBuilder();
+        if (day < 10)
+            sb.append(0);
+        sb.append(day);
+
+        if (month < 10)
+            sb.append(0);
+        sb.append(month);
+
+        sb.append(year);
+        if (hour < 10)
+            sb.append(0);
+        sb.append(hour);
+
+        if (minute < 10)
+            sb.append(0);
+        sb.append(minute);
+        String transactionID = sb.toString();
+        String dateStr = date.getMonthValue() + "/" + date.getDayOfMonth() + "/" + date.getYear();
+
+
+
+
+
+
+    }
+    
     public void newOrder()
     {
         itemNumber = 1;
@@ -287,18 +361,19 @@ public class NileDotCom
         finishOrderButton.setEnabled(false);
     }
 
-    public String createFinalInvoiceString()
+    public String createFinalInvoice(LocalDate date, LocalTime time, TimeZone timeZone)
     {
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
         String datePattern = "hh:mm:ss a";
-        TimeZone timeZone = TimeZone.getDefault();
 
         String invoice = "Date: " + date.getMonthValue() + "/" + date.getDayOfMonth() + "/"
                 + date.getYear() + ", " + time.format(DateTimeFormatter.ofPattern(datePattern))
                 + " " + timeZone.getDisplayName(true, 0) + "\n\n"
                 + "Number of line items: " + totalNumItems + "\n\n"
-                + "Item# / ID / Title / Price / Qty / Disc % / Subtotal:\n\n";
+                + "Item# / ID / Title / Price / Qty / Disc % / Subtotal:\n\n"
+                + getShoppingCartInfo() + "\n\n" + "Order subtotal: $" + String.format("%.2f", priceTotal)
+                + "\n\n" + "Tax rate:     6%\n\nTax amount   $" + String.format("%.2f", (priceTotal * 0.06))
+                + "\n\n" + "Order total:   $" + String.format("%.2f", (priceTotal + (priceTotal * 0.06)))
+                + "\n\n" + "Thanks for shopping at Nile Dot Com!";
 
         return invoice;
 
@@ -350,6 +425,8 @@ public class NileDotCom
         itemQuantityLabel.setText("Enter quantity for Item #" + itemNumber + ": ");
         itemInfoLabel.setText("Item #" + itemNumber + " info: ");
         orderSubtotalLabel.setText("Order subtotal for " + (itemNumber - 1) + " item(s): ");
+        processItemButton.setText("Process Item #1");
+        confirmItemButton.setText("Confirm Item #1");
     }
 
     //******************** Setup for labels ********************
