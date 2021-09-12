@@ -9,14 +9,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.Scanner;
 import java.lang.StringBuilder;
 import java.util.TimeZone;
@@ -32,11 +33,8 @@ public class NileDotCom
     private int itemNumber = 1;
     private int totalNumItems = 0;
     private double priceTotal = 0.00;
-//    private ArrayList<String> shoppingCart = new ArrayList<String/>();
     private ArrayList<Item> shoppingCart = new ArrayList<Item>();
 
-    // Holds info about item temporarily after user presses Process Item.
-    private String itemInfoRAM;
     private double itemPriceRAM;
     private Item itemRAM;
 
@@ -208,20 +206,20 @@ public class NileDotCom
                             subtotalPrice = applyDiscount(subtotalPrice, discountRate);
                         }
 
-                        itemInfoRAM =
-                                itemID + " " + tempItemDetails[1] + " " + "$" +
+                        // Holds info about item temporarily after user presses Process Item.
+                        String itemInfo = itemID + " " + tempItemDetails[1] + " " + "$" +
                                 String.format("%.2f", itemPrice) + " " + itemQuantity + " " +
                                 discountRate + "%" + " " + "$" + String.format("%.2f", subtotalPrice);
 
                         itemInfoLabel.setText("Item #" + itemNumber + " info: ");
-                        itemInfoTextField.setText(itemInfoRAM);
+                        itemInfoTextField.setText(itemInfo);
                         itemPriceRAM = subtotalPrice;
                         processItemButton.setEnabled(false);
                         confirmItemButton.setEnabled(true);
 
                         itemRAM = new Item(itemID, tempItemDetails[1], itemPrice, itemQuantity,
                                 (discountRate * 0.01), "$" +
-                                String.format("%.2f", subtotalPrice), itemInfoRAM);
+                                String.format("%.2f", subtotalPrice), itemInfo);
                     }
 
                     else
@@ -292,7 +290,7 @@ public class NileDotCom
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < shoppingCart.size(); i++)
-            sb.append((i + 1) + ". " + shoppingCart.get(i).getFullDescription()+ "\n");
+            sb.append(i + 1).append(". ").append(shoppingCart.get(i).getFullDescription()).append("\n");
 
         return sb.toString();
     }
@@ -317,17 +315,20 @@ public class NileDotCom
         String timeStr = time.format(DateTimeFormatter.ofPattern(datePattern)) + " " + zone;
         String dateStr = date.getMonthValue() + "/" + date.getDayOfMonth() + "/" + date.getYear();
 
-        try (Formatter output = new Formatter("transactions.txt"))
+        try
         {
+            FileWriter fw = new FileWriter("transaction.txt", true);
+            BufferedWriter output = new BufferedWriter(fw);
             for (int i = 0; i < shoppingCart.size(); i++)
             {
                 Item item = shoppingCart.get(i);
-                output.format("%s, %s, %s, %s, %s, %s, %s, %s, %s%n",
-                        transactionID, item.ID, item.description, item.pricePerItem, item.quantity,
-                        item.discount, item.totalPrice, dateStr, timeStr);
+                output.write(transactionID + ", " + item.ID + ", " + item.description + ", "
+                + item.pricePerItem + ", " + item.quantity + ", " + item.discount + ", "
+                + item.totalPrice + ", " + dateStr + ", " + timeStr + "\n");
             }
+            output.close();
         }
-        catch(IOException ex)
+        catch (Exception ex)
         {
             popUpMsg("Error occurred trying to save your transaction.", "Nile Dot Com - ERROR", 0);
         }
@@ -355,7 +356,7 @@ public class NileDotCom
         String invoice = "Date: " + date.getMonthValue() + "/" + date.getDayOfMonth() + "/"
                 + date.getYear() + ", " + time.format(DateTimeFormatter.ofPattern(datePattern))
                 + " " + timeZone.getDisplayName(true, 0) + "\n\n"
-                + "Number of line items: " + totalNumItems + "\n\n"
+                + "Number of line items: " + shoppingCart.size() + "\n\n"
                 + "Item# / ID / Title / Price / Qty / Disc % / Subtotal:\n\n"
                 + getShoppingCartInfo() + "\n\n" + "Order subtotal: $" + String.format("%.2f", priceTotal)
                 + "\n\n" + "Tax rate:     6%\n\nTax amount   $" + String.format("%.2f", (priceTotal * 0.06))
