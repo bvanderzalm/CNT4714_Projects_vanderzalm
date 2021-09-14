@@ -224,7 +224,7 @@ public class NileDotCom
 
                     else
                     {
-                        popUpMsg("Sorry... that item is out of stock, please try another item",
+                        popUpMsg("Sorry... that item (ID " + itemID + ") is out of stock, please try another item",
                                 "Nile Dot Com - ERROR", 0);
                     }
 
