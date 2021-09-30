@@ -14,4 +14,24 @@ public class Deposit implements Runnable
         this.sharedAccount = account;
         this.threadName = name;
     }
+
+    public void run()
+    {
+        int cashAmount = 250; // Random between 1 to 250
+        int sleepTime = 8000; // random for a couple milliseconds
+
+        try
+        {
+            while (true)
+            {
+                Thread.sleep(sleepTime);
+                sharedAccount.deposit(cashAmount, threadName);
+            }
+        }
+
+        catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
 }

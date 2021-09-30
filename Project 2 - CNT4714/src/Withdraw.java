@@ -15,5 +15,25 @@ public class Withdraw implements Runnable
         this.threadName = name;
     }
 
+    public void run()
+    {
+        int cashAmount = 50;
+        int sleepTime = 5000; // few milliseconds
+
+        try
+        {
+            while (true)
+            {
+                Thread.sleep(sleepTime);
+                sharedAccount.withdraw(cashAmount, threadName);
+            }
+        }
+
+        catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
 
 }
