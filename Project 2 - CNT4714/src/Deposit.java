@@ -6,7 +6,7 @@
 
 import java.util.Random;
 
-public class Deposit extends Thread
+public class Deposit implements Runnable
 {
     private Buffer sharedAccount;
     private String threadName;

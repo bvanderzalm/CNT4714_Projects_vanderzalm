@@ -6,7 +6,7 @@
 
 import java.util.Random;
 
-public class Withdraw extends Thread
+public class Withdraw implements Runnable
 {
     private Buffer sharedAccount;
     private String threadName;
