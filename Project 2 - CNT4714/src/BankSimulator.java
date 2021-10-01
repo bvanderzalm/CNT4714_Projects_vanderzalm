@@ -4,6 +4,9 @@
     Due Date: October 3, 2021
  */
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class BankSimulator
 {
     public void run()
@@ -20,43 +23,49 @@ public class BankSimulator
 
     public void setUpAndStartThreads()
     {
-        // Create bank account that'll be shared for all threads
-        SavingsAccount account = new SavingsAccount();
+        SavingsAccount bankAccount = new SavingsAccount();
+        ExecutorService app = Executors.newCachedThreadPool();
 
-        // Start Deposit Threads
-        Deposit D1 = new Deposit(account, "D1");
-        D1.start();
-        Deposit D2 = new Deposit(account, "D2");
-        D2.start();
-        Deposit D3 = new Deposit(account, "D3");
-        D3.start();
-        Deposit D4 = new Deposit(account, "D4");
-        D4.start();
-        Deposit D5 = new Deposit(account, "D5");
-        D5.start();
-        Deposit D6 = new Deposit(account, "D6");
-        D6.start();
+        try
+        {
+            Deposit D1 = new Deposit(bankAccount, "D1");
+            app.execute(D1);
+            Deposit D2 = new Deposit(bankAccount, "D2");
+            app.execute(D2);
+            Deposit D3 = new Deposit(bankAccount, "D3");
+            app.execute(D3);
+            Deposit D4 = new Deposit(bankAccount, "D4");
+            app.execute(D4);
+            Deposit D5 = new Deposit(bankAccount, "D5");
+            app.execute(D5);
+            Deposit D6 = new Deposit(bankAccount, "D6");
+            app.execute(D6);
 
-        // Start Withdraw Threads
-        Withdraw W1 = new Withdraw(account, "W1");
-        W1.start();
-        Withdraw W2 = new Withdraw(account, "W2");
-        W2.start();
-        Withdraw W3 = new Withdraw(account, "W3");
-        W3.start();
-        Withdraw W4 = new Withdraw(account, "W4");
-        W4.start();
-        Withdraw W5 = new Withdraw(account, "W5");
-        W5.start();
-        Withdraw W6 = new Withdraw(account, "W6");
-        W6.start();
-        Withdraw W7 = new Withdraw(account, "W7");
-        W7.start();
-        Withdraw W8 = new Withdraw(account, "W8");
-        W8.start();
-        Withdraw W9 = new Withdraw(account, "W9");
-        W9.start();
+            Withdraw W1 = new Withdraw(bankAccount, "W1");
+            app.execute(W1);
+            Withdraw W2 = new Withdraw(bankAccount, "W2");
+            app.execute(W2);
+            Withdraw W3 = new Withdraw(bankAccount, "W3");
+            app.execute(W3);
+            Withdraw W4 = new Withdraw(bankAccount, "W4");
+            app.execute(W4);
+            Withdraw W5 = new Withdraw(bankAccount, "W5");
+            app.execute(W5);
+            Withdraw W6 = new Withdraw(bankAccount, "W6");
+            app.execute(W6);
+            Withdraw W7 = new Withdraw(bankAccount, "W7");
+            app.execute(W7);
+            Withdraw W8 = new Withdraw(bankAccount, "W8");
+            app.execute(W8);
+            Withdraw W9 = new Withdraw(bankAccount, "W9");
+            app.execute(W9);
 
+        }
+
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     public static void main(String [] args)
