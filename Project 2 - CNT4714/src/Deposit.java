@@ -4,12 +4,15 @@
     Due Date: October 3, 2021
  */
 
-public class Deposit implements Runnable
+import java.util.Random;
+
+public class Deposit extends Thread
 {
-    private SavingsAccount sharedAccount;
+    private Buffer sharedAccount;
     private String threadName;
 
-    public Deposit(SavingsAccount account, String name)
+    // Constructor
+    public Deposit(Buffer account, String name)
     {
         this.sharedAccount = account;
         this.threadName = name;
@@ -17,15 +20,24 @@ public class Deposit implements Runnable
 
     public void run()
     {
-        int cashAmount = 250; // Random between 1 to 250
-        int sleepTime = 8000; // random for a couple milliseconds
+        // Generate random number for cash deposited and sleep time.
+        Random generator = new Random();
 
         try
         {
             while (true)
             {
+                int cashAmount = generator.nextInt(250);
+                // Thread shouldn't deposit $0
+                if (cashAmount == 0)
+                    cashAmount = 1;
+
+                sharedAccount.depositCash(cashAmount, threadName);
+                int sleepTime = generator.nextInt(350);
+                if (sleepTime == 0)
+                    sleepTime = 1;
+
                 Thread.sleep(sleepTime);
-                sharedAccount.deposit(cashAmount, threadName);
             }
         }
 

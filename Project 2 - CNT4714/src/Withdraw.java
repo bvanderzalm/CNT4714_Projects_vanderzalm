@@ -4,12 +4,15 @@
     Due Date: October 3, 2021
  */
 
-public class Withdraw implements Runnable
+import java.util.Random;
+
+public class Withdraw extends Thread
 {
-    private SavingsAccount sharedAccount;
+    private Buffer sharedAccount;
     private String threadName;
 
-    public Withdraw(SavingsAccount account, String name)
+    // Constructor
+    public Withdraw(Buffer account, String name)
     {
         this.sharedAccount = account;
         this.threadName = name;
@@ -17,23 +20,19 @@ public class Withdraw implements Runnable
 
     public void run()
     {
-        int cashAmount = 50;
-        int sleepTime = 5000; // few milliseconds
+        // Generate random number for cash withdrawn
+        Random generator = new Random();
 
-        try
+        while (true)
         {
-            while (true)
-            {
-                Thread.sleep(sleepTime);
-                sharedAccount.withdraw(cashAmount, threadName);
-            }
-        }
+            int cashAmount = generator.nextInt(50);
+            // Thread shouldn't withdraw $0
+            if (cashAmount == 0)
+                cashAmount = 1;
 
-        catch (InterruptedException ex)
-        {
-            ex.printStackTrace();
+            sharedAccount.withdrawCash(cashAmount, threadName);
+            Thread.yield();
         }
     }
-
-
 }
+
