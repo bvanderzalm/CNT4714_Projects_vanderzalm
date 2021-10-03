@@ -8,6 +8,7 @@ import java.util.Random;
 
 public class Deposit implements Runnable
 {
+    // Created shared account since savingsAccount implements Buffer.
     private Buffer sharedAccount;
     private String threadName;
 
@@ -21,6 +22,8 @@ public class Deposit implements Runnable
     public void run()
     {
         // Generate random number for cash deposited and sleep time.
+        // Note: the nextInt(...) lines are inside while loop so a
+        //       thread doesn't have the same number each time.
         Random generator = new Random();
 
         try
@@ -28,12 +31,15 @@ public class Deposit implements Runnable
             while (true)
             {
                 int cashAmount = generator.nextInt(250);
-                // Thread shouldn't deposit $0
+
+                // Thread shouldn't deposit $0 (requirements).
                 if (cashAmount == 0)
                     cashAmount = 1;
 
                 sharedAccount.depositCash(cashAmount, threadName);
                 int sleepTime = generator.nextInt(350);
+
+                // Thread shouldn't sleep for 0 amount of time either.
                 if (sleepTime == 0)
                     sleepTime = 1;
 
