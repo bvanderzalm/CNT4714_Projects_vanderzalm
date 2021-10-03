@@ -10,10 +10,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SavingsAccount implements Buffer
 {
-    private int balance = 0;
+    private int balance;
     private Lock accessLock = new ReentrantLock();
     private Condition canDeposit = accessLock.newCondition();
     private Condition canWithdraw = accessLock.newCondition();
+
+    public SavingsAccount()
+    {
+        this.balance = 0;
+    }
 
     public void withdrawCash(int amount, String threadName)
     {
@@ -28,13 +33,11 @@ public class SavingsAccount implements Buffer
                 System.out.print("\t\t\t\t\t\tThread " + threadName + " withdraws $" + amount);
                 System.out.print("\t\t\t(-) Balance is $" + balance);
                 System.out.println();
-//                System.out.println("Withdrew $" + amount + " from account with thread " + threadName + ". Balance is $" + balance);
             }
 
             // If there isn't enough cash in the account, block the withdrawal.
             else
             {
-//                System.out.println("BLOCKED not enough cash. Balance is $" + balance + " can't withdraw $" + amount);
                 System.out.print("\t\t\t\t\t\tThread " + threadName + " withdraws $" + amount);
                 System.out.print("\t\t\t(******) WITHDRAWAL BLOCKED - INSUFFICIENT FUNDS!!!");
                 System.out.println();
@@ -62,7 +65,6 @@ public class SavingsAccount implements Buffer
         {
             // Add cash into account regardless of the current balance.
             balance = balance + amount;
-//            System.out.println("Deposited $" + amount + " with thread " + threadName + ". Balance is $" + balance);
             System.out.print("Thread " + threadName + " deposits $" + amount);
             System.out.print("\t\t\t\t\t\t\t\t\t(+) Balance is $" + balance);
             System.out.println();
