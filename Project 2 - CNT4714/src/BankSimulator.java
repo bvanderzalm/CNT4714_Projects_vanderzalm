@@ -23,11 +23,16 @@ public class BankSimulator
 
     public void setUpAndStartThreads()
     {
+        // Create shared/synced bank account.
         SavingsAccount bankAccount = new SavingsAccount();
-        ExecutorService app = Executors.newCachedThreadPool();
+
+        // Create new thread pool with 15 threads (6 Deposit, 9 Withdraw)
+        ExecutorService app = Executors.newFixedThreadPool(15);
 
         try
         {
+            // Try to start 6 Deposit threads,
+            // passing the shared/synced bank account, and the thread name
             Deposit D1 = new Deposit(bankAccount, "D1");
             app.execute(D1);
             Deposit D2 = new Deposit(bankAccount, "D2");
@@ -41,6 +46,8 @@ public class BankSimulator
             Deposit D6 = new Deposit(bankAccount, "D6");
             app.execute(D6);
 
+            // Try to start 9 Withdraw threads,
+            // passing the shared/synced bank account, and the thread name.
             Withdraw W1 = new Withdraw(bankAccount, "W1");
             app.execute(W1);
             Withdraw W2 = new Withdraw(bankAccount, "W2");
