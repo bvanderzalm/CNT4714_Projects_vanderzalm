@@ -12,13 +12,12 @@ import java.sql.SQLException;
 
 public class ServerApp extends JFrame
 {
-    static final String DEFAULT_QUERY = "";
     private final String DEFAULT_DATABASE_URL = "jdbc:mysql://localhost:3306/project3?useTimezone=true&serverTimezone=UTC";
     private final String DEFAULT_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private String driverStringList [] = {DEFAULT_DRIVER, ""}, databaseURLStringList [] = {DEFAULT_DATABASE_URL, ""};
+    private String driverStringList [] = {DEFAULT_DRIVER, ""};
+    private String databaseURLStringList [] = {DEFAULT_DATABASE_URL, "jdbc:mysql://localhost:3306/bikedb?useTimezone=true&serverTimezone=UTC"};
     private ResultSetTableModel tableModel;
     private JTextArea queryArea;
-    private JScrollPane scrollPane;
     private JButton sqlExecuteCommandButton, sqlClearCommandButton, connectToDatabaseButton, clearResultWindowButton;
     private JLabel driverLabel, databaseURLLabel, usernameLabel, passwordLabel, databaseConnectionLabel;
     private JComboBox driverComboBox, databaseURLComboBox;
@@ -27,9 +26,9 @@ public class ServerApp extends JFrame
     private Box queryBox;
     private JPanel userTextFieldsAndLabelsPanel, sqlCommandButtonsPanel, dbConnectButtonAndLabelPanel;
     private JPanel northComponents, centerComponents, southComponents;
-    private Connection connection;
-
+    private Connection connection = null;
     private JTable resultTable;
+    private boolean connectedToDatabase = false;
 
     public ServerApp()
     {
@@ -40,11 +39,9 @@ public class ServerApp extends JFrame
             setUpTextFieldsAndLabels();
             setUpButtons();
 
-            //tableModel = new ResultSetTableModel(DEFAULT_QUERY);
-
             resultTable = new JTable();
             resultTable.setModel(new DefaultTableModel());
-//            resultTable.setGridColor(Color.BLACK);
+            resultTable.setGridColor(Color.BLACK);
 
             placeItemsUsingPanels();
 
@@ -85,29 +82,30 @@ public class ServerApp extends JFrame
 
     public void executeSQLCommand()
     {
-        System.out.println("Execute SQL Command");
-//        try
-//        {
-//            tableModel.setQuery(queryArea.getText());
-//        }
-//
-//        catch (SQLException sqlException)
-//        {
-//            popUpErrorMessage(sqlException.getMessage(), "Database error");
-//
-//            try
-//            {
-//                tableModel.setQuery(DEFAULT_QUERY);
-//                queryArea.setText(DEFAULT_QUERY);
-//            }
-//
-//            catch (SQLException sqlException2)
-//            {
-//                popUpErrorMessage(sqlException2.getMessage(), "Database error");
-//                //***************************************************************************************************************************************
-////                tableModel.disconnectFromDatabase();
-//            }
-//        }
+        if (!connectedToDatabase)
+        {
+            popUpErrorMessage("Please make sure to log in and connect to the database.", "Login Connection Error");
+        }
+
+        else
+        {
+            try
+            {
+                tableModel = new ResultSetTableModel(queryArea.getText(), connection);
+                tableModel.setQuery(queryArea.getText());
+                resultTable.setModel(tableModel);
+            }
+            catch (ClassNotFoundException ex)
+            {
+                popUpErrorMessage(ex.getMessage(), "Error");
+                clearResultWindow();
+            }
+            catch (SQLException sqlException)
+            {
+                popUpErrorMessage(sqlException.getMessage(), "Database error");
+                clearResultWindow();
+            }
+        }
     }
 
     public void clearSQLCommand()
@@ -129,6 +127,8 @@ public class ServerApp extends JFrame
 
             databaseConnectionLabel.setText("Connected to " + databaseURL);
             databaseConnectionLabel.setForeground(Color.GREEN);
+            connectedToDatabase = true;
+            clearResultWindow();
         }
         catch (NullPointerException ex)
         {
@@ -156,11 +156,14 @@ public class ServerApp extends JFrame
     {
         databaseConnectionLabel.setText("No Connection Now");
         databaseConnectionLabel.setForeground(Color.RED);
+        connectedToDatabase = false;
+        // tableModel.disconnectFromDatabase();
+        // tableModel = null;
     }
 
     public void clearResultWindow()
     {
-
+        resultTable.setModel(new DefaultTableModel());
     }
 
     public void popUpErrorMessage(String msg, String title)
@@ -171,10 +174,10 @@ public class ServerApp extends JFrame
     // Sets up JTextArea in which user types queries.
     public void setUpQueryTextArea()
     {
-        queryArea = new JTextArea(DEFAULT_QUERY, 3, 100);
+        queryArea = new JTextArea("", 3, 100);
         queryArea.setWrapStyleWord(true);
         queryArea.setLineWrap(true);
-        scrollPane = new JScrollPane(queryArea,
+        JScrollPane scrollPane = new JScrollPane(queryArea,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     }
@@ -199,17 +202,6 @@ public class ServerApp extends JFrame
 
 
     }
-
-//    public void setUpQueryBox()
-//    {
-//        queryBox = Box.createHorizontalBox();
-//        queryBox.add(scrollPane);
-//        queryBox.add(sqlClearCommandButton);
-//        queryBox.add(sqlExecuteCommandButton);
-//        queryBox.setBounds(400, 200, 230, 50);
-////        box.add(connectToDatabaseButton);
-////        box.add(clearResultWindowButton);
-//    }
 
     public void placeItemsUsingPanels()
     {
