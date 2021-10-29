@@ -1,3 +1,11 @@
+/* Name: Bradley Vanderzalm
+   Course: CNT4714 - Fall 2021
+   Assignment title: Project 3 - Two-Tier Client-Server Application Development with MySQL and JDBC
+   Date: Thursday October 28, 2021
+ */
+
+import com.mysql.cj.jdbc.MysqlDataSource;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -5,9 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Properties;
 
 public class ServerApp extends JFrame
 {
@@ -95,8 +104,7 @@ public class ServerApp extends JFrame
 
                 // If we get to this point, the command was successfully executed.
                 // Hence, update operations database.
-                connectToOperationsLogDatabase();
-                updateOperationsLog();
+                connectAndUpdateOperationsLogDatabase();
             }
             catch (ClassNotFoundException ex)
             {
@@ -111,14 +119,49 @@ public class ServerApp extends JFrame
         }
     }
 
-    public void connectToOperationsLogDatabase()
+    // Method adapted from SimpleJDCProperties.java from Webcourses
+    public void connectAndUpdateOperationsLogDatabase()
     {
+        Properties properties = new Properties();
+        FileInputStream filein = null;
+        MysqlDataSource dataSource = null;
 
-    }
+        try
+        {
+            // Read properties file
+            filein = new FileInputStream("db.properties");
+            properties.load(filein);
+            dataSource = new MysqlDataSource();
+            dataSource.setURL(properties.getProperty("MYSQL_DB_URL"));
+            dataSource.setUser(properties.getProperty("MYSQL_DB_USERNAME"));
+            dataSource.setPassword(properties.getProperty("MYSQL_DB_PASSWORD"));
 
-    public void updateOperationsLog()
-    {
-        
+            // Connect to database and create statement.
+            Connection operationsConnection = dataSource.getConnection();
+            Statement statement = operationsConnection.createStatement();
+
+            int resultSet;
+            String num_query_str = "update operationscount set num_queries=num_queries+1";
+            String num_updates_str = "update operationscount set num_updates=num_updates+1";
+            String query = queryArea.getText();
+
+            if (query.contains("select"))
+                resultSet = statement.executeUpdate(num_query_str);
+
+            else
+                resultSet = statement.executeUpdate(num_updates_str);
+
+            operationsConnection.close();
+        }
+        catch (IOException io)
+        {
+            popUpErrorMessage(io.getMessage(), "Error reading operationslog database properties file");
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+            popUpErrorMessage(ex.getMessage(), "Error connecting and updating operationslog database.");
+        }
     }
 
     public void clearSQLCommand()
