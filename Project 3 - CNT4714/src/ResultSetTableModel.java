@@ -167,4 +167,25 @@ public class ResultSetTableModel extends AbstractTableModel
 
         fireTableStructureChanged();
     }
+
+    public void disconnectFromDatabase()
+    {
+        if (!connectedToDatabase)
+            return;
+
+        else try
+        {
+            statement.close();
+            connection.close();
+        }
+        catch (SQLException sqlException)
+        {
+            sqlException.printStackTrace();
+        }
+        finally
+        {
+            connectedToDatabase = false;
+        }
+
+    }
 }
