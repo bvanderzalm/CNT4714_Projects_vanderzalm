@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ServerApp extends JFrame
@@ -23,6 +25,7 @@ public class ServerApp extends JFrame
     private Box queryBox;
     private JPanel userTextFieldsAndLabelsPanel, sqlCommandButtonsPanel, dbConnectButtonAndLabelPanel;
     private JPanel northComponents, centerComponents, southComponents;
+    private Connection connection;
 
     private JTable resultTable;
 
@@ -50,7 +53,7 @@ public class ServerApp extends JFrame
             //add(queryBox);//, BorderLayout.NORTH);
             //add(new JScrollPane(resultTable), BorderLayout.CENTER);
             setUpButtonActionListeners();
-            setSize(800, 500);
+            setSize(1200, 500);
             setVisible(true);
 
         }
@@ -110,6 +113,49 @@ public class ServerApp extends JFrame
 ////                tableModel.disconnectFromDatabase();
 //            }
 //        }
+    }
+
+    public void connectToDatabase()
+    {
+        try
+        {
+            String selectedDriver = driverComboBox.getSelectedItem().toString();
+            String databaseURL = databaseURLComboBox.getSelectedItem().toString();
+            String username = usernameTextField.getText();
+            String password = String.copyValueOf(passwordField.getPassword());
+            Class.forName(selectedDriver);
+
+            connection = DriverManager.getConnection(databaseURL, username, password);
+
+            databaseConnectionLabel.setText("Connected to " + databaseURL);
+            databaseConnectionLabel.setForeground(Color.GREEN);
+        }
+        catch (NullPointerException ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Null Pointer, please retype");
+            changeDatabaseConnectionStatus();
+        }
+        catch (ClassNotFoundException ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Driver not found");
+            changeDatabaseConnectionStatus();
+        }
+        catch (SQLException sqlException)
+        {
+            popUpErrorMessage(sqlException.getMessage() + "...Ensure username and password are correct.", "Database error");
+            changeDatabaseConnectionStatus();
+        }
+        catch (Exception ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Error");
+            changeDatabaseConnectionStatus();
+        }
+    }
+
+    private void changeDatabaseConnectionStatus()
+    {
+        databaseConnectionLabel.setText("No Connection Now");
+        databaseConnectionLabel.setForeground(Color.RED);
     }
 
     public void popUpErrorMessage(String msg, String title)
@@ -318,7 +364,7 @@ public class ServerApp extends JFrame
 
                 else if (actionEventObject == connectToDatabaseButton)
                 {
-                    System.out.println("Connect to Database");
+                    connectToDatabase();
                 }
 
                 else if (actionEventObject == clearResultWindowButton)
