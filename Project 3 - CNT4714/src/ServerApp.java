@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -23,7 +22,6 @@ public class ServerApp extends JFrame
     private JComboBox driverComboBox, databaseURLComboBox;
     private JTextField usernameTextField;
     private JPasswordField passwordField;
-    private Box queryBox;
     private JPanel userTextFieldsAndLabelsPanel, sqlCommandButtonsPanel, dbConnectButtonAndLabelPanel;
     private JPanel northComponents, centerComponents, southComponents;
     private Connection connection = null;
@@ -94,6 +92,11 @@ public class ServerApp extends JFrame
                 tableModel = new ResultSetTableModel(queryArea.getText(), connection);
                 tableModel.setQuery(queryArea.getText());
                 resultTable.setModel(tableModel);
+
+                // If we get to this point, the command was successfully executed.
+                // Hence, update operations database.
+                connectToOperationsLogDatabase();
+                updateOperationsLog();
             }
             catch (ClassNotFoundException ex)
             {
@@ -106,6 +109,16 @@ public class ServerApp extends JFrame
                 clearResultWindow();
             }
         }
+    }
+
+    public void connectToOperationsLogDatabase()
+    {
+
+    }
+
+    public void updateOperationsLog()
+    {
+        
     }
 
     public void clearSQLCommand()
