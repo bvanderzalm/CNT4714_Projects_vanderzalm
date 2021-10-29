@@ -37,37 +37,31 @@ public class ServerApp extends JFrame
     private JTable resultTable;
     private boolean connectedToDatabase = false;
 
+    private final Font FONT = new JLabel().getFont();
+
+    // Constructor setting up GUI components, no attempt to connect to database here.
     public ServerApp()
     {
+        // GUI Title
         super("Project 3 - SQL Client App - (BV - CNT 4714 - Fall 2021)");
         try
         {
+            // Setup GUI components
             setUpQueryTextArea();
             setUpTextFieldsAndLabels();
             setUpButtons();
 
+            // Set query results as blank default table. Nothing should show up yet
+            // since user hasn't connected to database yet.
             resultTable = new JTable();
             resultTable.setModel(new DefaultTableModel());
             resultTable.setGridColor(Color.BLACK);
 
-            placeItemsUsingPanels();
-
+            placeGUIComponentsUsingPanels();
             setUpButtonActionListeners();
-            setSize(1200, 650);
+            setSize(1200, 760);
             setVisible(true);
         }
-
-//        catch (ClassNotFoundException classNotFound)
-//        {
-//            popUpErrorMessage("MySQL driver not found", "Driver not found");
-//        }
-//
-//        catch (SQLException sqlException)
-//        {
-//            popUpErrorMessage(sqlException.getMessage(), "Database error");
-//            //******************************************************************************************
-//            //tableModel.disconnectFromDatabase();
-//        }
 
         catch (Exception ex)
         {
@@ -80,7 +74,8 @@ public class ServerApp extends JFrame
         {
             public void windowClosed(WindowEvent event)
             {
-                //tableModel.disconnectFromDatabase();
+                tableModel.disconnectFromDatabase();
+                changeDatabaseConnectionStatus();
                 System.exit(0);
             }
         }
@@ -96,6 +91,7 @@ public class ServerApp extends JFrame
 
         else
         {
+            // Attempt to display database results. If successful update operations log database
             try
             {
                 tableModel = new ResultSetTableModel(queryArea.getText(), connection);
@@ -117,6 +113,71 @@ public class ServerApp extends JFrame
                 clearResultWindow();
             }
         }
+    }
+
+    public void clearSQLCommand()
+    {
+        queryArea.setText("");
+    }
+
+    public void connectToDatabase()
+    {
+        try
+        {
+            // Take information given by user.
+            String selectedDriver = driverComboBox.getSelectedItem().toString();
+            String databaseURL = databaseURLComboBox.getSelectedItem().toString();
+            String username = usernameTextField.getText();
+            String password = String.copyValueOf(passwordField.getPassword());
+            Class.forName(selectedDriver);
+
+            // Attempt to connect to database
+            connection = DriverManager.getConnection(databaseURL, username, password);
+
+            // Update screen to confirm user the new database connection was successful.
+            databaseConnectionLabel.setText("Connected to " + databaseURL);
+            databaseConnectionLabel.setForeground(Color.GREEN);
+            connectedToDatabase = true;
+            clearResultWindow();
+        }
+        catch (NullPointerException ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Null Pointer, please retype");
+            changeDatabaseConnectionStatus();
+        }
+        catch (ClassNotFoundException ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Driver not found");
+            changeDatabaseConnectionStatus();
+        }
+        catch (SQLException sqlException)
+        {
+            popUpErrorMessage(sqlException.getMessage() + "...Ensure username and password are correct.", "Database error");
+            changeDatabaseConnectionStatus();
+        }
+        catch (Exception ex)
+        {
+            popUpErrorMessage(ex.getMessage(), "Error");
+            changeDatabaseConnectionStatus();
+        }
+    }
+
+    private void changeDatabaseConnectionStatus()
+    {
+        databaseConnectionLabel.setText("  No Connection Now");
+        databaseConnectionLabel.setForeground(Color.RED);
+        connectedToDatabase = false;
+//        tableModel.disconnectFromDatabase();
+    }
+
+    public void clearResultWindow()
+    {
+        resultTable.setModel(new DefaultTableModel());
+    }
+
+    public void popUpErrorMessage(String msg, String title)
+    {
+        JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
     }
 
     // Method adapted from SimpleJDCProperties.java from Webcourses
@@ -164,69 +225,6 @@ public class ServerApp extends JFrame
         }
     }
 
-    public void clearSQLCommand()
-    {
-        queryArea.setText("");
-    }
-
-    public void connectToDatabase()
-    {
-        try
-        {
-            String selectedDriver = driverComboBox.getSelectedItem().toString();
-            String databaseURL = databaseURLComboBox.getSelectedItem().toString();
-            String username = usernameTextField.getText();
-            String password = String.copyValueOf(passwordField.getPassword());
-            Class.forName(selectedDriver);
-
-            connection = DriverManager.getConnection(databaseURL, username, password);
-
-            databaseConnectionLabel.setText("Connected to " + databaseURL);
-            databaseConnectionLabel.setForeground(Color.GREEN);
-            connectedToDatabase = true;
-            clearResultWindow();
-        }
-        catch (NullPointerException ex)
-        {
-            popUpErrorMessage(ex.getMessage(), "Null Pointer, please retype");
-            changeDatabaseConnectionStatus();
-        }
-        catch (ClassNotFoundException ex)
-        {
-            popUpErrorMessage(ex.getMessage(), "Driver not found");
-            changeDatabaseConnectionStatus();
-        }
-        catch (SQLException sqlException)
-        {
-            popUpErrorMessage(sqlException.getMessage() + "...Ensure username and password are correct.", "Database error");
-            changeDatabaseConnectionStatus();
-        }
-        catch (Exception ex)
-        {
-            popUpErrorMessage(ex.getMessage(), "Error");
-            changeDatabaseConnectionStatus();
-        }
-    }
-
-    private void changeDatabaseConnectionStatus()
-    {
-        databaseConnectionLabel.setText("No Connection Now");
-        databaseConnectionLabel.setForeground(Color.RED);
-        connectedToDatabase = false;
-        // tableModel.disconnectFromDatabase();
-        // tableModel = null;
-    }
-
-    public void clearResultWindow()
-    {
-        resultTable.setModel(new DefaultTableModel());
-    }
-
-    public void popUpErrorMessage(String msg, String title)
-    {
-        JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
-    }
-
     // Sets up JTextArea in which user types queries.
     public void setUpQueryTextArea()
     {
@@ -250,23 +248,29 @@ public class ServerApp extends JFrame
 
     public void setUpButtons()
     {
-        sqlCommandButtonsPanel = new JPanel(new GridLayout(1, 4));
+        setUpPanelForPositioning();
         setUpClearSQLCommandButton();
         setUpExecuteSQLCommandButton();
         setUpConnectToDatabaseButton();
         setUpClearResultWindowButton();
-
-
     }
 
-    public void placeItemsUsingPanels()
+    // This method deals with positioning of all components. Uses a mix of GridLayout and
+    // hard coding positioning.
+    public void placeGUIComponentsUsingPanels()
     {
-        northComponents = new JPanel(new GridLayout(1, 2));
+        addInstructionLabels();
+
+        northComponents = new JPanel(new GridLayout(2, 2));
+        // Blank labels to help with spacing and positioning.
+        JLabel blank1 = new JLabel(""), blank2 = new JLabel("");
+        northComponents.add(blank1, BorderLayout.NORTH);
+        northComponents.add(blank2, BorderLayout.NORTH);
         northComponents.add(userTextFieldsAndLabelsPanel);
         northComponents.add(queryArea);
 
         centerComponents = new JPanel();
-        centerComponents.add(sqlCommandButtonsPanel, BorderLayout.SOUTH);
+        centerComponents.add(sqlCommandButtonsPanel);
 
         southComponents = new JPanel();
         southComponents.setLayout(new BorderLayout(20, 0));
@@ -274,16 +278,36 @@ public class ServerApp extends JFrame
         southComponents.add(new JScrollPane(resultTable), BorderLayout.CENTER);
         southComponents.add(clearResultWindowButton, BorderLayout.SOUTH);
 
+        // Add to GUI
         add(northComponents, BorderLayout.NORTH);
         add(centerComponents, BorderLayout.CENTER);
         add(southComponents, BorderLayout.SOUTH);
+    }
+
+    // This adds labels instructing the user what to do. Places above SQL query area and
+    // database info area.
+    public void addInstructionLabels()
+    {
+        JLabel enterDbInfo = new JLabel("Enter Database Information");
+        enterDbInfo.setForeground(Color.BLUE);
+        enterDbInfo.setFont(new Font(FONT.getName(), Font.BOLD, 14));
+        enterDbInfo.setBounds(7, 80, 230,25);
+
+        JLabel enterSQLCmd = new JLabel("Enter An SQL Command");
+        enterSQLCmd.setForeground(Color.BLUE);
+        enterSQLCmd.setFont(new Font(FONT.getName(), Font.BOLD, 14));
+        enterSQLCmd.setBounds(604, 80, 230, 25);
+
+        // Add to panel
+        add(enterDbInfo);
+        add(enterSQLCmd);
     }
 
     //******************** Setup for labels and TextFields********************
 
     public void setUpJDBCDriverLabelAndComboBox()
     {
-        driverLabel = new JLabel("JDBC Driver");//, SwingConstants.LEFT);
+        driverLabel = new JLabel("  JDBC Driver");//, SwingConstants.LEFT);
         driverLabel.setBackground(Color.GRAY);
         driverLabel.setForeground(Color.BLACK);
         driverLabel.setOpaque(true);
@@ -296,7 +320,7 @@ public class ServerApp extends JFrame
 
     public void setUpDatabaseURLLabelAndComboBox()
     {
-        databaseURLLabel = new JLabel("Database URL");//, SwingConstants.LEFT);
+        databaseURLLabel = new JLabel("  Database URL");//, SwingConstants.LEFT);
         databaseURLLabel.setBackground(Color.GRAY);
         databaseURLLabel.setForeground(Color.BLACK);
         databaseURLLabel.setOpaque(true);
@@ -309,7 +333,7 @@ public class ServerApp extends JFrame
 
     public void setUpUsernameLabelAndTextField()
     {
-        usernameLabel = new JLabel("Username");
+        usernameLabel = new JLabel("  Username");
         usernameLabel.setBackground(Color.GRAY);
         usernameLabel.setForeground(Color.BLACK);
         usernameLabel.setOpaque(true);
@@ -320,7 +344,7 @@ public class ServerApp extends JFrame
 
     public void setUpPasswordLabelAndTextField()
     {
-        passwordLabel = new JLabel("Password");
+        passwordLabel = new JLabel("  Password");
         passwordLabel.setBackground(Color.GRAY);
         passwordLabel.setForeground(Color.BLACK);
         passwordLabel.setOpaque(true);
@@ -331,13 +355,23 @@ public class ServerApp extends JFrame
 
     public void setUpDatabaseConnectionLabel()
     {
-        databaseConnectionLabel = new JLabel("No Connection Now.");
+        databaseConnectionLabel = new JLabel("  No Connection Now.");
         databaseConnectionLabel.setBackground(Color.BLACK);
         databaseConnectionLabel.setForeground(Color.RED);
         databaseConnectionLabel.setOpaque(true);
     }
 
     //******************** Setup for Buttons ********************
+
+    // This sets up a gridlayout to put empty labels so the sql command buttons can be right aligned
+    public void setUpPanelForPositioning()
+    {
+        sqlCommandButtonsPanel = new JPanel(new GridLayout(1, 4));
+        JLabel blank1 = new JLabel(" ");
+        JLabel blank2 = new JLabel(" ");
+        sqlCommandButtonsPanel.add(blank1);
+        sqlCommandButtonsPanel.add(blank2);
+    }
 
     public void setUpClearSQLCommandButton() {
         sqlClearCommandButton = new JButton("Clear SQL Command");
