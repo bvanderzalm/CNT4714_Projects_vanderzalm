@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,28 +36,21 @@ public class ServerApp extends JFrame
         super("Project 3 - SQL Client App - (BV - CNT 4714 - Fall 2021)");
         try
         {
-//            tableModel = new ResultSetTableModel(DEFAULT_QUERY);
             setUpQueryTextArea();
             setUpTextFieldsAndLabels();
             setUpButtons();
 
+            //tableModel = new ResultSetTableModel(DEFAULT_QUERY);
 
-
-
-            //setUpQueryBox();
-
-            //tableModel = new ResultSetTableModel();
-            //resultTable = new JTable(tableModel);
-            //resultTable.setGridColor(Color.BLACK);
+            resultTable = new JTable();
+            resultTable.setModel(new DefaultTableModel());
+//            resultTable.setGridColor(Color.BLACK);
 
             placeItemsUsingPanels();
 
-            //add(queryBox);//, BorderLayout.NORTH);
-            //add(new JScrollPane(resultTable), BorderLayout.CENTER);
             setUpButtonActionListeners();
-            setSize(1200, 500);
+            setSize(1200, 650);
             setVisible(true);
-
         }
 
 //        catch (ClassNotFoundException classNotFound)
@@ -90,7 +85,7 @@ public class ServerApp extends JFrame
 
     public void executeSQLCommand()
     {
-        System.out.println("Execute SQLCommand");
+        System.out.println("Execute SQL Command");
 //        try
 //        {
 //            tableModel.setQuery(queryArea.getText());
@@ -113,6 +108,11 @@ public class ServerApp extends JFrame
 ////                tableModel.disconnectFromDatabase();
 //            }
 //        }
+    }
+
+    public void clearSQLCommand()
+    {
+        queryArea.setText("");
     }
 
     public void connectToDatabase()
@@ -156,6 +156,11 @@ public class ServerApp extends JFrame
     {
         databaseConnectionLabel.setText("No Connection Now");
         databaseConnectionLabel.setForeground(Color.RED);
+    }
+
+    public void clearResultWindow()
+    {
+
     }
 
     public void popUpErrorMessage(String msg, String title)
@@ -213,16 +218,12 @@ public class ServerApp extends JFrame
         northComponents.add(queryArea);
 
         centerComponents = new JPanel();
-//        centerComponents.add(sqlCommandButtonsPanel, BorderLayout.EAST);
-//        centerComponents.add(dbConnectButtonAndLabelPanel, BorderLayout.SOUTH);
-
-//        centerComponents.add(dbConnectButtonAndLabelPanel, BorderLayout.EAST);
         centerComponents.add(sqlCommandButtonsPanel, BorderLayout.SOUTH);
 
         southComponents = new JPanel();
         southComponents.setLayout(new BorderLayout(20, 0));
-        //south.add(scrollpane) borderlayout north
         southComponents.add(dbConnectButtonAndLabelPanel, BorderLayout.NORTH);
+        southComponents.add(new JScrollPane(resultTable), BorderLayout.CENTER);
         southComponents.add(clearResultWindowButton, BorderLayout.SOUTH);
 
         add(northComponents, BorderLayout.NORTH);
@@ -230,21 +231,15 @@ public class ServerApp extends JFrame
         add(southComponents, BorderLayout.SOUTH);
     }
 
-
-
     //******************** Setup for labels and TextFields********************
 
     public void setUpJDBCDriverLabelAndComboBox()
     {
-        // Label
         driverLabel = new JLabel("JDBC Driver");//, SwingConstants.LEFT);
         driverLabel.setBackground(Color.GRAY);
         driverLabel.setForeground(Color.BLACK);
         driverLabel.setOpaque(true);
-//        driverLabel.setBounds(10, 20, 23, 25);
-//        add(driverLabel);//, BorderLayout.WEST);
 
-        // ComboBox (Textfield with different choices)
         driverComboBox = new JComboBox(driverStringList);
 
         userTextFieldsAndLabelsPanel.add(driverLabel);
@@ -257,8 +252,6 @@ public class ServerApp extends JFrame
         databaseURLLabel.setBackground(Color.GRAY);
         databaseURLLabel.setForeground(Color.BLACK);
         databaseURLLabel.setOpaque(true);
-//        databaseURLLabel.setBounds(10, 40, 23, 25);
-//        add(databaseURLLabel);//, BorderLayout.WEST);
 
         databaseURLComboBox = new JComboBox(databaseURLStringList);
 
@@ -304,8 +297,6 @@ public class ServerApp extends JFrame
         sqlClearCommandButton.setForeground(Color.RED);
         sqlClearCommandButton.setBorderPainted(false);
         sqlClearCommandButton.setOpaque(true);
-        //sqlClearCommandButton.setBounds(400, 200, 230, 25);
-        //add(sqlClearCommandButton);
         sqlCommandButtonsPanel.add(sqlClearCommandButton);
     }
 
@@ -315,8 +306,6 @@ public class ServerApp extends JFrame
         sqlExecuteCommandButton.setForeground(Color.BLACK);
         sqlExecuteCommandButton.setBorderPainted(false);
         sqlExecuteCommandButton.setOpaque(true);
-//        sqlExecuteCommandButton.setBounds(450, 200, 230, 25);
-//        add(sqlExecuteCommandButton);
         sqlCommandButtonsPanel.add(sqlExecuteCommandButton);
     }
 
@@ -340,7 +329,6 @@ public class ServerApp extends JFrame
         clearResultWindowButton.setForeground(Color.BLACK);
         clearResultWindowButton.setBorderPainted(false);
         clearResultWindowButton.setOpaque(true);
-//        clearResultWindowButton.getPreferredSize();
     }
 
     public void setUpButtonActionListeners()
@@ -359,7 +347,7 @@ public class ServerApp extends JFrame
 
                 else if (actionEventObject == sqlClearCommandButton)
                 {
-                    System.out.println("Clear SQL Command");
+                    clearSQLCommand();
                 }
 
                 else if (actionEventObject == connectToDatabaseButton)
@@ -369,10 +357,8 @@ public class ServerApp extends JFrame
 
                 else if (actionEventObject == clearResultWindowButton)
                 {
-                    System.out.println("Clear Result Window");
+                    clearResultWindow();
                 }
-
-
             }
         };
 
