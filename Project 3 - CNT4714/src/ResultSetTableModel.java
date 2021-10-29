@@ -15,27 +15,32 @@ public class ResultSetTableModel extends AbstractTableModel
     private int numberOfRows;
 
     // Keep track of database connection status
-    private boolean connectedToDatabase = false;
+    private boolean connectedToDatabase;
 
     public ResultSetTableModel(String query, Connection connection) throws SQLException, ClassNotFoundException
     {
         // Connecting to database was already handled in GUI class.
         this.connection = connection;
-        try
+
+        // Ensure database connection wasn't lost in the process.
+        if (!connection.isClosed())
         {
-            // Create Statement to query database
-            statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            try
+            {
+                // Create Statement to query database
+                statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
-            // Update database connection status
-            connectedToDatabase = true;
+                // Update database connection status
+                connectedToDatabase = true;
 
-            // Set query and execute it
-            setQuery(query);
+                // Set query and execute it
+                setQuery(query);
+            }
 
-        }
-        catch (SQLException sqlException)
-        {
-            sqlException.printStackTrace();
+            catch (SQLException sqlException)
+            {
+                sqlException.printStackTrace();
+            }
         }
     }
 
