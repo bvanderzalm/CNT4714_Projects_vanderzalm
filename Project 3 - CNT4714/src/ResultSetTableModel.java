@@ -1,3 +1,9 @@
+/* Name: Bradley Vanderzalm
+   Course: CNT4714 - Fall 2021
+   Assignment title: Project 3 - Two-Tier Client-Server Application Development with MySQL and JDBC
+   Date: Thursday October 28, 2021
+ */
+
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.swing.table.AbstractTableModel;
@@ -5,7 +11,6 @@ import java.sql.*;
 
 
 // Adapted from ResultSetTableModel.java from Webcourses
-
 public class ResultSetTableModel extends AbstractTableModel
 {
     private Connection connection;
@@ -25,22 +30,14 @@ public class ResultSetTableModel extends AbstractTableModel
         // Ensure database connection wasn't lost in the process.
         if (!connection.isClosed())
         {
-            try
-            {
-                // Create Statement to query database
-                statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            // Create Statement to query database
+            statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
-                // Update database connection status
-                connectedToDatabase = true;
+            // Update database connection status
+            connectedToDatabase = true;
 
-                // Set query and execute it
-                setQuery(query);
-            }
-
-            catch (SQLException sqlException)
-            {
-                sqlException.printStackTrace();
-            }
+            // Set query and execute it
+            setQuery(query);
         }
     }
 
@@ -137,7 +134,16 @@ public class ResultSetTableModel extends AbstractTableModel
             throw new IllegalStateException("Not connected to Database");
 
         // Specify query and execute it
-        resultSet = statement.executeQuery(query);
+        if (query.startsWith("select"))
+            resultSet = statement.executeQuery(query);
+
+        // Only update table (insert, update, delete, etc.) and return.
+        // User has to run another select command to see the changes.
+        else
+        {
+            statement.executeUpdate(query);
+            return;
+        }
 
         // Obtain meta data for ResultSet
         metaData = resultSet.getMetaData();
