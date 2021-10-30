@@ -59,7 +59,7 @@ public class ServerApp extends JFrame
 
             placeGUIComponentsUsingPanels();
             setUpButtonActionListeners();
-            setSize(1200, 760);
+            setSize(1210, 760);
             setVisible(true);
         }
 
@@ -74,8 +74,8 @@ public class ServerApp extends JFrame
         {
             public void windowClosed(WindowEvent event)
             {
-                tableModel.disconnectFromDatabase();
-                changeDatabaseConnectionStatus();
+                if (tableModel != null)
+                    tableModel.disconnectFromDatabase();
                 System.exit(0);
             }
         }
@@ -95,8 +95,12 @@ public class ServerApp extends JFrame
             try
             {
                 tableModel = new ResultSetTableModel(queryArea.getText(), connection);
-                tableModel.setQuery(queryArea.getText());
-                resultTable.setModel(tableModel);
+                //tableModel.setQuery(queryArea.getText());
+                if (queryArea.getText().startsWith("select"))
+                    resultTable.setModel(tableModel);
+
+                else
+                    clearResultWindow();
 
                 // If we get to this point, the command was successfully executed.
                 // Hence, update operations database.
@@ -106,6 +110,10 @@ public class ServerApp extends JFrame
             {
                 popUpErrorMessage(ex.getMessage(), "Error");
                 clearResultWindow();
+            }
+            catch (SQLSyntaxErrorException clientDeniedEx)
+            {
+                popUpErrorMessage(clientDeniedEx.getMessage(), "Client denied command error");
             }
             catch (SQLException sqlException)
             {
@@ -135,7 +143,7 @@ public class ServerApp extends JFrame
             connection = DriverManager.getConnection(databaseURL, username, password);
 
             // Update screen to confirm user the new database connection was successful.
-            databaseConnectionLabel.setText("Connected to " + databaseURL);
+            databaseConnectionLabel.setText("  Connected to " + databaseURL);
             databaseConnectionLabel.setForeground(Color.GREEN);
             connectedToDatabase = true;
             clearResultWindow();
@@ -167,7 +175,6 @@ public class ServerApp extends JFrame
         databaseConnectionLabel.setText("  No Connection Now");
         databaseConnectionLabel.setForeground(Color.RED);
         connectedToDatabase = false;
-//        tableModel.disconnectFromDatabase();
     }
 
     public void clearResultWindow()
@@ -206,9 +213,11 @@ public class ServerApp extends JFrame
             String num_updates_str = "update operationscount set num_updates=num_updates+1";
             String query = queryArea.getText();
 
-            if (query.contains("select"))
+            // Send query to change query count on operations database
+            if (query.startsWith("select"))
                 resultSet = statement.executeUpdate(num_query_str);
 
+            // Send update (insert,update,delete,etc.) to change update count on op db.
             else
                 resultSet = statement.executeUpdate(num_updates_str);
 
