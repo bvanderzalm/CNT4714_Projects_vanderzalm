@@ -21,11 +21,12 @@
 			form textarea {background-color: blue; color: white;}
 			form input {background-color: yellow; color: red; font-weight: bold;}
 			form button {background-color: yellow; color: black; font-weight: bold;}
-			table {margin-right: auto; margin-left: auto; color: black;}
+			/*table {margin-right: auto; margin-left: auto; color: black;}*/
+			table {color: black;}
 			/* Table Headers */
 			table th {background-color: red;}
 			/* Table data */
-			table td {background-color: gray;}
+			table td {background-color: lightgray;}
 			/*input[type="submit"] {background-color:  yellow; font-weight: bold;}*/
 			/*input[type="button"] {background-color:  yellow; color: red; font-weight: bold;}*/
 			span {color: red;}
