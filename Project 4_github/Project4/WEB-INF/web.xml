@@ -1,0 +1,32 @@
+<!-- Name: Bradley Vanderzalm
+	 Course: CNT 4714 - Fall 2021 - Project Four
+	 Assignment title: A Three-Tier Distributed Web-Based Application
+	 Date: November 30, 2021
+-->
+
+<!-- File adapted from web.xml on webcourses (Module 5) -->
+<web-app>
+	<!-- General description of Web app -->
+	<display-name>
+		CNT 4714 Fall 2021 3-Tier Web app
+	</display-name>
+	<description>
+		Web app project demonstrates skills learned
+		throughout the semester using servlets, JSP,
+		Tomcat, MySQL, and JDBC technologies.
+	</description>
+	<!-- Servlet definitions -->
+	<servlet>
+		<servlet-name>TTWA</servlet-name>
+		<description>
+			Overall servlet handling requests and SQL Commands.
+		</description>
+		<servlet-class>
+			ServerApp
+		</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TTWA</servlet-name>
+		<url-pattern>/ServerApp</url-pattern>
+	</servlet-mapping>
+</web-app>
