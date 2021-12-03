@@ -1,7 +1,7 @@
 <!-- Name: Bradley Vanderzalm
 	 Course: CNT 4714 - Fall 2021 - Project Four
 	 Assignment title: A Three-Tier Distributed Web-Based Application
-	 Date: November 30, 2021
+	 Date: December 2, 2021
 -->
 
 <!-- File adapted from welcomesession.jsp on webcourses (Module 5) -->
@@ -20,15 +20,13 @@
 			h2 { color:lime; font-size: 1.2em; }
 			form textarea {background-color: blue; color: white;}
 			form input {background-color: yellow; color: red; font-weight: bold;}
-			form button {background-color: yellow; color: black; font-weight: bold;}
+			form button {background-color: lime; color: darkblue; font-weight: bold;}
 			/*table {margin-right: auto; margin-left: auto; color: black;}*/
 			table {color: black;}
 			/* Table Headers */
 			table th {background-color: red;}
 			/* Table data */
 			table td {background-color: lightgray;}
-			/*input[type="submit"] {background-color:  yellow; font-weight: bold;}*/
-			/*input[type="button"] {background-color:  yellow; color: red; font-weight: bold;}*/
 			span {color: red;}
 			/*#sqlTextArea { color: white ;background: blue; width: 600px; height: 230px; }*/
 			#servlet {color: purple;}
@@ -44,11 +42,21 @@
 		<p>You are connected to the Project 4 Enterprise System database as a root user. Please enter any valid SQL query or update command in the box below.</p>
 		<form action="ServerApp" method="post">
 			<textarea id="sqlTextArea" name="sqlTextArea" rows="20" cols="60"></textarea>
+			<br>
 			<input type ="submit" name= "submit" value= "Execute Command" />
+			<!-- <button type = "submit" id="reset" formaction="ServerApp" formmethod="get">Reset Form</button> -->
+			<!-- Uses doGet method in java file. This in in effort to keep the sql command the user wrote -->
+			<button type = "submit" id="clear" formaction="ServerApp" formmethod="get">Clear Results</button>
+
+
+			<!-- <button type="submit" -->
 			<!-- <button type="submit">Execute Command</button> -->
 			<!-- <input type="submit" name="submit" value="Execute Command"> -->
 			<!-- <input type="submit" value="Reset Form"> -->
 			<!-- <input type="submit" value="Clear Results"> -->
+		</form>
+		<form action ="ServerApp" method="get">
+			<input type ="submit" name = "reset" value = "Reset Form" />
 		</form>
 		<p>All execution results will appear below the line.</p>
 		<hr>
