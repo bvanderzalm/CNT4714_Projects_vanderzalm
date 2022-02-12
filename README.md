@@ -5,11 +5,11 @@
 
 Enterprise Computing (CNT4714) will expose you to the world of heterogeneous enterprise computing architectures with an emphasis on networked, distributed applications using a variety of technologies. Including:
 
-1. Multi-threadedapplications. Communication and synchronization amongst threads.
+1. Multi-threaded applications. Communication and synchronization amongst threads.
 2. Networking issues for distributed systems.
 3. Database systems backend connectivity. JDBC and other technologies.
 4. Multi-tier distributed enterprise applications.
-5. Apache HTTP Server, ApacheTomcatServer, Server administration issues.
+5. Apache HTTP Server, Apache Tomcat Server, Server administration issues.
 6. Servlet technology.
 7. JSP technology.
 
